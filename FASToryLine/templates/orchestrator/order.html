@@ -1,0 +1,142 @@
+{% extends 'base.html' %} {% block head %}
+<title style="color: orchid">Order</title>
+{% endblock %} {% block body %}
+<h1 style="color: orchid; text-align: justify">Place your Order here.</h1>
+<hr />
+<!--to upload data filling form to server app-->
+<!--Screen specifications-->
+<div class="row">
+  <div class="col-6 ">
+    <form action="/placeorder" method="POST">
+      <!-- Mobile frame color selection -->
+      <h4 class="display-12">Please selcect frame color and recipe.</h4>
+      <div class="form-check form-check-inline">
+        <input class="form-check-input" type="radio" name="FrameColor"id="Frame1" value="RED" data-labelauty="Red" checked>
+        <label class="form-check-label" for="Frame1">Red</label>
+      </div>
+      <div class="form-check form-check-inline">
+        <input class="form-check-input" type="radio" name="FrameColor" id="Frame2" value="GREEN"data-labelauty="Green">
+        <label class="form-check-label" for="Frame2">Green</label>
+      </div>
+      <div class="form-check form-check-inline">
+        <input class="form-check-input" type="radio" name="FrameColor" id="Frame3" value="BLUE" data-labelauty="Blue" >
+        <label class="form-check-label" for="Frame3">Blue </label>
+      </div>
+      <hr/>
+      <!-- Mobile frame selection -->
+      <div class="form-check form-check-inline">
+        <input class="form-check-input" type="radio" name="FrameType"id="Frame1" value="Draw1" data-labelauty="Frame 1" checked>
+        <label class="form-check-label" for="Frame1">Frame 1</label>
+      </div>
+      <div class="form-check form-check-inline">
+        <input class="form-check-input" type="radio" name="FrameType" id="Frame2" value="Draw2" data-labelauty="Frame 2">
+        <label class="form-check-label" for="Frame2">Frame2</label>
+      </div>
+      <div class="form-check form-check-inline">
+        <input class="form-check-input" type="radio" name="FrameType" id="Frame3" value="Draw3" data-labelauty="Frame 3" >
+        <label class="form-check-label" for="Frame3">Frame3 </label>
+      </div>
+      <hr />
+      <!--Screen specifications-->
+      <!-- Mobile screen color selection -->
+      <h4 class="display-12">Please selcect screen color and recipe.</h4>
+      <div class="form-check form-check-inline">
+        <input class="form-check-input" type="radio" name="ScreenColor"id="Screen1" value="RED" data-labelauty="Red" checked>
+        <label class="form-check-label" for="Screen1">Red</label>
+      </div>
+      <div class="form-check form-check-inline">
+        <input class="form-check-input" type="radio" name="ScreenColor" id="Screen2" value="GREEN"data-labelauty="Green">
+        <label class="form-check-label" for="Screen2">Green</label>
+      </div>
+      <div class="form-check form-check-inline">
+        <input class="form-check-input" type="radio" name="ScreenColor" id="Screen3" value="BLUE" data-labelauty="Blue" >
+        <label class="form-check-label" for="Screen3">Blue </label>
+      </div>
+      <hr/>
+      <!-- Mobile screen selection -->
+      <div class="form-check form-check-inline">
+        <input class="form-check-input" type="radio" name="ScreenType"id="Screen1" value="Draw7" data-labelauty="Screen 1" checked>
+        <label class="form-check-label" for="Screen1">Screen 1</label>
+      </div>
+      <div class="form-check form-check-inline">
+        <input class="form-check-input" type="radio" name="ScreenType" id="Screen2" value="Draw8" data-labelauty="Screen 2">
+        <label class="form-check-label" for="Screen2">Screen 2</label>
+      </div>
+      <div class="form-check form-check-inline">
+        <input class="form-check-input" type="radio" name="ScreenType" id="Screen3" value="Draw9" data-labelauty="Screen 3" >
+        <label class="form-check-label" for="Screen3">Screen 3 </label>
+      </div>
+      <hr />
+      <!--Keyapad specifications-->
+      <!-- Mobile Keyapad color selection -->
+      <h4 class="display-12">Please selcect keypad color and recipe.</h4>
+      <div class="form-check form-check-inline">
+        <input class="form-check-input" type="radio" name="KeypadColor"id="Keypad1" value="RED" data-labelauty="Red" checked>
+        <label class="form-check-label" for="Keypad1">Red</label>
+      </div>
+      <div class="form-check form-check-inline">
+        <input class="form-check-input" type="radio" name="KeypadColor" id="Keypad2" value="GREEN"data-labelauty="Green">
+        <label class="form-check-label" for="Keypad2">Green</label>
+      </div>
+      <div class="form-check form-check-inline">
+        <input class="form-check-input" type="radio" name="KeypadColor" id="Keypad3" value="BLUE" data-labelauty="Blue" >
+        <label class="form-check-label" for="Keypad3">Blue </label>
+      </div>
+      <hr/>
+      <!-- Mobile Keyapad selection -->
+      <div class="form-check form-check-inline">
+        <input class="form-check-input" type="radio" name="KeypadType"id="Keypad1" value="Draw4" data-labelauty="Keyapad 1" checked>
+        <label class="form-check-label" for="Keypad1">Keypad 1</label>
+      </div>
+      <div class="form-check form-check-inline">
+        <input class="form-check-input" type="radio" name="KeypadType" id="Keypad2" value="Draw5" data-labelauty="Keyapad 2">
+        <label class="form-check-label" for="Keypad2">Keypad 2</label>
+      </div>
+      <div class="form-check form-check-inline">
+        <input class="form-check-input" type="radio" name="KeypadType" id="Keypad3" value="Draw6" data-labelauty="Keyapad 3" >
+        <label class="form-check-label" for="Keypad3">Keypad 3 </label>
+      </div>
+      <hr />
+      <input type="number" min="1" name="quantity" value="1" />
+      <input class="btn btn-outline-primary btn-sm"type="submit" name="order" value="Confirm Order"/>
+    </form>
+  </div>
+  
+  <!-- production policy -->
+
+  <div class="col-6 border">
+    <h4 class="display-12">Please selcect a production policy.</h4>
+    <div><a href="/about-productionPolicies" class="btn btn-outline-warning btn-xs">About Production Policies.</a></div>
+    <hr>
+    <div  class="form-check form-switch">
+      <form action="/production-policy" method="POST">
+        <input class="form-check-input" type="radio" name="productionPolicy" id="Ref" value=1> Referance Production Policy <br>
+        <input class="form-check-input" type="radio" name="productionPolicy" id="FixedCol" value=2> Fixed Color ProductionPolicy<br>
+        <input class="form-check-input" type="radio" name="productionPolicy" id="FixedColRes" value=3 checked> Fixed Color and Fixed Recipe ProductionPolicy<br>
+        <input class="form-check-input" type="radio" name="productionPolicy" id="Error" value=4> With Errored Workstations ProductionPolicy<br>
+
+        <br>
+        <div class="hstack gap-3">
+        <input class="btn btn-outline-success btn-sm" type="submit" name="prodectionPolicy" value="Start Production"/>
+        <!-- <div><a href="http://127.0.0.1:1064/production-policy" class="btn btn-outline-success btn-sm">Start Production</a></div> -->
+         <div class="vr"></div>
+        <div><a href="/" class="btn btn-outline-info btn-sm">Go to main page</a></div>
+      </form>
+    </div>
+
+    </div>
+
+  </div>
+</div>
+<br>
+<!-- <form action="http://127.0.0.1:2007/startProduction" method="POST">
+  <input
+    class="btn btn-primary"
+    type="submit"
+    name="startProduction"
+    value="Start Production"
+  />
+  <a href="/" class="btn btn-info">Go to main page</a>
+</form> -->
+
+{% endblock %}

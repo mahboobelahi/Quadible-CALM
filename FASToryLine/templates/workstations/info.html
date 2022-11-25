@@ -1,0 +1,125 @@
+{% extends "wrk_cell_base.html" %}
+    {% block head %}
+    {% endblock %}
+    {% block body %}
+      <div class="col-xs-12">
+        <a href="{{info.WorkCellIP}}"class="btn btn-outline-info btn-xs">Workstation Home
+        </a>
+      </div>
+    <h1>FASTory Workstation_{{info.id}} Information</h1>
+    <div class="row">
+  <div class="col-8">
+    <table class="table table-hover table-bordered text-nowrap">
+      <tr>
+        <th>ID</th>
+        <td>{{ info.id }}</td>
+      </tr>
+      <tr>
+        <th>Make</th>
+        <td>{{ info.RobotMake }}</td>
+      </tr>
+      <tr>
+        <th>Type</th>
+        <td>{{ info.RobotType }}</td>
+      </tr>
+      <tr>
+        <th>Has Zone4</th>
+        <td>{% if info.HasZone4 %}
+          Yes
+        {% else %}
+          No
+        {% endif %}</td>
+      </tr>
+      <tr>
+        <th>Workstation Local IP</th>
+        <td>{{ info.WorkCellIP }}</td>
+      </tr>
+      <tr>
+        <th>CNV Service Url</th>
+        <td>{{info.CNV_service_url}}</td>
+      </tr>
+      <tr>  
+        <th>Robot Service Url</th>
+        <td>{{info.Robot_service_url}}</td>
+      </tr>
+      <tr>  
+        <th>Capabilities</th>
+        <td>
+          {% if info.Capabilities %}
+            {% for cap in info.Capabilities %}
+              {{cap}},
+            {% endfor %}            
+          {% else %}
+            <div class="   alert alert-danger alert-dismissible fade show" role="alert">
+                    <strong>No production policy selected.</strong>
+            </div>
+            <div class=" nav-cell">
+                <a href="http://127.0.0.1:1064/placeorder">Place your Order</a>
+            </div>
+          {% endif %}
+        </td>
+      </tr>  
+      <tr>
+          <th>Component Status</th>
+          <td>
+               {#{{info.ComponentStatus[0],info.ComponentStatus[1],info.ComponentStatus[2]}}#}
+              <!-- Main CNV -->
+              {% if info.ComponentStatus[0]==False %}
+                MainCNV: Broken,
+              {% else %}
+                MainCNV: OK,
+              {% endif %}
+              <!-- ByPass CNV -->
+              {% if (info.id==7 or info.id==1) %}
+                BypassCNV: NotPresent,
+              {% elif info.ComponentStatus[1] ==False %}
+                BypassCNV: Broken,
+              {% else %}
+                BypassCNV: OK,
+              {% endif %}
+          </td>
+  
+      </tr>
+
+        
+      {% if info.HasEM_Module %}
+      <tr>
+        <th>S1000-E10 Module</th>
+        <td>{{ info.HasEM_Module}}</td>
+      </tr>
+      <tr>
+        <th>S1000 Energy Service URL</th>
+        <td>{{ info.EM_service_url }}</td>
+      </tr>
+
+      {% else %}
+      <tr>
+        <th>S1000-E10 Module</th>
+        <td>No Energy Monitoring Module</td>
+      </tr>
+      <tr>
+        <th>S1000 Energy Service URL</th>
+        <td>N/A</td>
+      </tr>
+      {% endif %}
+    </table>
+  </div>
+    <div class="col-4">
+        {% if info.id==7 %}
+            <img
+            src="{{ url_for('static', filename='images/FASTory.png') }}"
+            class="img-thumbnail"
+            alt="N/A"
+            style="width: 500px; height: 300px"/>
+        {% else %}
+            <img
+            src="{{ url_for('static', filename='images/WS'+info.id|string+'.jpg') }}"
+            class="img-thumbnail"
+            alt="N/A"
+            style="width: 310px; height: 310px"/>
+        {% endif %}
+
+  </div>
+    </div>
+
+    {% endblock body %}

@@ -1,0 +1,35 @@
+{% extends 'base.html' %} {% block head %}
+{% endblock %} 
+{% block body %}
+
+  {% with messages = get_flashed_messages()  %}
+        {% if messages %}
+            {% for msg in messages %}
+
+          {% if err==True %}
+                    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                <strong>{{msg}}</strong>
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div> 
+          {% else %}
+                    <div class="alert alert-success alert-dismissible fade show" role="alert">
+                <strong>{{msg}}</strong>
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div> 
+          {% endif %}   
+            {% endfor %} 
+        {% endif %}
+    {% endwith %} 
+<form action="/api-updateCapability" method="POST">
+  <div class="form-row">
+
+    <div class="form-group">
+      <label for="capability">Enter info as JSON: {id:value,capabilities:[]}</label>
+      <textarea class="form-control" id="capability" name="data" rows="4"></textarea>
+    </div>
+  </div>
+  <br>
+ <button type="submit" class="btn-outline-danger btn-lg  ">Submit</button>
+</form>
+
+{% endblock %}

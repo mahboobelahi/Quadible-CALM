@@ -1,0 +1,242 @@
+{% extends 'base.html' %} {% block head %}
+{% endblock %} 
+{% block body %}
+<div class="container">
+       <div class="row">
+       <p style="text-align: justify;">
+              On FASTory Line following actions are perfored in order to finish drawing of a cell phone model: 
+
+              <ol class="list-group">
+                     <li class="list-group-item">
+                            1. The paper loading operation is done by robot which takes certain time which 
+                            cannot be reduce. 
+                     </li>
+                     <li class="list-group-item">
+                            2. Pallet movement on bypass and production conveyors is fixed and cannot be 
+                            minimized. 
+                     </li>
+                     <li class="list-group-item">
+                            3. Loading and unloading of pallet is manual and depend on the efficiency of pallet 
+                            loading operator which is not reducible. 
+                     </li>
+                     <li class="list-group-item">
+                            4. The paper loading operation is done by robot which takes certain time which 
+                            cannot be reduce. 
+                     </li>              
+                     <li class="list-group-item" style="text-align: justify;">
+                            5. There are two tasks performed by production robots, changing of pen cliours 
+                            and drawing of cell phone recipes. There is a possibility to reduce/minimize or 
+                            optimize the job time by assignment of tasks though these operations need certain time which is not reducible,
+                            but the task and cycle time optimization is achieved by assigning the combination of different task to these work cells.
+                     </li>
+              </ol> 
+       </p>              
+       </div>
+
+       <div class="row">
+              <p style="text-align: justify;">
+                     Author developed three different production policies to optimize the average cycle time 
+                     of working cell by assignment of different combination of jobs to production cells. The 
+                     name of these production policies is listed below: 
+                     <ol class="list-group">
+                            <li class="list-group-item">
+                                   1. Available Free workstation (Reference Policy) 
+                            </li>
+                            <li class="list-group-item">
+                                   2. Fixed Colour Policy 
+                            </li>  
+                            <li class="list-group-item">
+                                   3. Fixed Drawing Recipe and Colour Policy 
+                            </li>                                        
+                     </ol>
+              </p>
+       </div>
+       <div class="row">
+              <div class="col-8">
+                     <h3>Available Free workstation (Reference Policy)</h3>
+                     <p style="text-align: justify;">
+                            This is the novice production policy which does not balance assembly line. Orchestrator 
+                            takes this policy and start production without any balancing task assignment. This 
+                            reference policy is good to measure the time taken by work cells to draw test 
+                            case cell phone production model.
+                            In reference production policy each free WC is assigned a whole unit of cell phone model 
+                            is assigned to draw. Here pallet left the production zone when all the 
+                            components are drawn on the same work cell. Figure shows the precedence diagram 
+                            of test model for the reference production policy.
+                            <div class="text-center">
+                            <img
+                                   src="{{ url_for('static', filename='images/figure39.png') }}"
+                                   class="border border-2 border-secondary mx-auto d-block"
+                                   alt="Buffer Station"
+                                   style="width: 700px; height: 250px; margin-top: 10px"/>
+                                   <figcaption class="figure-caption">Precedence Diagram of Test Model for Reference Policy</figcaption>    
+                            </div>                            
+                     </p>
+              </div>
+        <div class="col-4 table-responsive">
+
+            <table class="table table-bordered table-hover caption-top">
+                <caption>Result of Reference Policy</caption>
+
+                <tbody>
+                    <tr>
+                        <td>Order quantity </td>
+                        <td> 50 </td>
+                    </tr>
+                    <tr>
+                        <td>Time to Complete one order</td>
+                        <td> 5.138 min </td>
+                    </tr>
+                     <tr>
+                        <td>Utilized Number of WC  </td>
+                        <td> 6</td>
+                    </tr>
+                     <tr>
+                        <td>Jobs performed by WC2</td>
+                        <td> 10 </td>
+                    </tr>
+                     <tr>
+                        <td>Jobs performed by WC3 </td>
+                        <td> 10 </td>
+                    </tr>
+                     <tr>
+                        <td>Jobs performed by WC4 </td>
+                        <td> 10 </td>
+                    </tr>
+                     <tr>
+                        <td>Jobs performed by WC5 </td>
+                        <td> 8 </td>
+                    </tr>                                        
+                     <tr>
+                        <td>Jobs performed by WC6 </td>
+                        <td> 7 </td>
+                    </tr>
+                     <tr>
+                        <td>Jobs performed by WC8 </td>
+                        <td> 5 </td>
+                    </tr>                                       
+                </tbody>
+            </table> 
+        </div>
+       </div>
+       <div class="row">
+              <div class="col-8">
+                     <h3>Fixed Color Policy </h3>
+                     <p style="text-align: justify;">
+                            Before discussing second policy, please note that in this process there is a repetative task which is pen change. The pen change job involves pick 
+                            and place type operations. These operations are time consuming and slow down the 
+                            drawing process furthermore, pen change task unnecessarily increase the 
+                            work element (N) hence the task time also increases so it is unnecessary to include them 
+                            in work element. 
+                            In policy 2 each workstation is assigned a specific colour out of available drawing colours 
+                            (Red, Green and Blue) as FASTory line is capable to draw 729 different cell phone 
+                            models based on the different combinations of RGB colours and 9 distinct components 
+                            so fixing the colours do not harm the production of any product mix combination. In fixed 
+                            colour policy orchestrator assigned a pen change task to the workstations  at start-
+                            up phase hence robot of every workstation has assigned colour in its gripper before the
+                            start of production. Hence this task assignment does not include in calculating the ALB 
+                            parameters for this policy. Figure 44 shows the sequence diagram of policy 2. When 
+                            production starts, order is placed on the pallet and pallet goes to the zone 1 of the WC 
+                            and orchestrator check whether the workstation is capable to draw the component in 
+                            specific colour or not. If it can than production starts otherwise it bypasses that station. 
+                            Colour fixation technique significantly reduces total task time as well as work elements 
+                            from 7 to 4. Figure shows the precedence 
+                            diagram of policy 2 work elements. 
+                            <div class="text-center">
+                            <img
+                                   src="{{ url_for('static', filename='images/figure44.png') }}"
+                                   class="border border-2 border-secondary mx-auto d-block"
+                                   alt="Buffer Station"
+                                   style="width: 500px; height: 250px; margin-top: 10px"/>
+                                   <figcaption class="figure-caption">Precedence Diagram of Test Model for Reference Policy</figcaption>    
+                            </div>                            
+                     </p>
+                     <p style="text-align: justify;">
+                          In policy 2, orchestrator allocate jobs to nearest free work cell which is capable to perform 
+                            drawing task i.e. colour of order component and workstation are same. In this policy each 
+                            WC will perform only drawing task. During production most of the time each free 
+                            workstation draws only one component hence the workstation operative time does not 
+                            exceed from cycle time  
+                     </p>
+              </div>
+        <div class="col-4 table-responsive">
+              <div class="text-center">
+                     <img
+                            src="{{ url_for('static', filename='images/policy2Workelement.png') }}"
+                            class="border border-2 border-secondary mx-auto d-block"
+                            alt="Buffer Station"
+                            style="width: 325px; height: 275px; margin-top: 10px"/>
+                            <figcaption class="figure-caption">Policy 2 work element</figcaption>    
+                     <img
+                            src="{{ url_for('static', filename='images/policy2ALBparm.png') }}"
+                            class="border border-2 border-secondary mx-auto d-block"
+                            alt="Buffer Station"
+                            style="width: 350px; height: 300px; margin-top: 10px"/>
+                            <figcaption class="figure-caption">Assembly Line parameters for Policy 2</figcaption>     
+                     <img
+                            src="{{ url_for('static', filename='images/resultsfrompolicy2.png') }}"
+                            class="border border-2 border-secondary mx-auto d-block"
+                            alt="Buffer Station"
+                            style="width: 350px; height: 300px; margin-top: 10px"/>
+                            <figcaption class="figure-caption">Results from Policy 2</figcaption>                                                    
+              </div>  
+        
+       </div>
+
+       <!--  -->
+       <div class="row">
+                     <div class="col-8">
+                            <h3>Fixed Colour and Fixed Recipe Policy </h3>
+                            <p style="text-align: justify;">
+                                   This policy is slight modification of policy 2. As name of the policy indicates that beside 
+                                   fixing the colours of workstations it also fixes the drawing recipes.
+                                   <div class="text-center">
+                                   </div>                            
+                            </p>
+                            <p style="text-align: justify;">
+                                   The assignment of task done by orchestrator at run time during instantiation of 
+                                   workstation server class objects. Task assignment is such that: 
+                                   <ol class="list-group">
+                                          <li class="list-group-item"> All types of frames (Draw1, Draw2, Draw3) of Red colour are drawn by cell 2. </li>
+                                          <li class="list-group-item"> All types of screens (Draw4, Draw5, Draw6) of Green colour are drawn by cell 3.</li>
+                                          <li class="list-group-item">  All types of keypads (Draw7, Draw8, Draw9) of Blue colour are drawn by cell 4.</li>
+                                          <li class="list-group-item"> This pattern continues up till work cell 11 as listed in table 18.  </li>
+                                          <li class="list-group-item"> Work cell 12 to “ERROR” so orchestrator knew about the 
+                                                                      current state of work cell and bypass that work cell during production. This is 
+                                                                      done purposely to show that workstations under maintenance or error state can 
+                                                                      be handled by orchestrator.
+                                          </li>
+                                   </ol>
+                            </p>
+                     </div>
+              <div class="col-4 table-responsive">
+                     <div class="text-center">
+                            <img
+                                   src="{{ url_for('static', filename='images/policy3taskassignment.png') }}"
+                                   class="border border-2 border-secondary mx-auto d-block"
+                                   alt="Buffer Station"
+                                   style="width: 400px; height: 500px; margin-top: 10px"/>
+                                   <figcaption class="figure-caption">Assignment of Fix Colors and Jobs to WS for Policy 3 </figcaption>    
+                                     
+                            <img
+                                   src="{{ url_for('static', filename='images/policy2ALBparm.png') }}"
+                                   class="border border-2 border-secondary mx-auto d-block"
+                                   alt="Buffer Station"
+                                   style="width: 350px; height: 300px; margin-top: 10px"/>
+                                   <figcaption class="figure-caption">Assembly Line parameters for Policy 2</figcaption>     
+                            <img
+                                   src="{{ url_for('static', filename='images/resultsfrompolicy2.png') }}"
+                                   class="border border-2 border-secondary mx-auto d-block"
+                                   alt="Buffer Station"
+                                   style="width: 350px; height: 300px; margin-top: 10px"/>
+                                   <figcaption class="figure-caption">Results from Policy 2</figcaption>                                                    
+                     </div>  
+              
+              </div>
+
+
+
+
+</div>
+
+{% endblock %}

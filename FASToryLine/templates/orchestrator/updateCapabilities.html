@@ -1,0 +1,17 @@
+{% extends 'base.html' %} {% block head %}
+{% endblock %} 
+{% block body %}
+
+
+<form action="/api-updateCapability" method="POST">
+  <div class="form-row">
+    <div class="form-group">
+      <label for="capability">Enter info as JSON: {id:value,capabilities:[]}</label>
+      <textarea class="form-control" id="capability" name="data" value="ugfdsigfs" rows="4"></textarea>
+    </div>
+  </div>
+  <br>
+ <button type="submit" class="btn-outline-danger btn-lg ">Submit</button>
+</form>
+
+{% endblock %}

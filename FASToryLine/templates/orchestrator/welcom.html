@@ -1,0 +1,74 @@
+{% extends 'base.html' %} {% block head %} {% endblock %} {% block body %}
+<!-- {% with messages = get_flashed_messages()  %}
+        {% if messages %}
+            {% for msg in messages %}
+
+        <div class="alert alert-info alert-dismissible fade show" role="alert">
+                <strong>{{msg}}</strong>
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>    
+            {% endfor %} 
+        {% endif %}
+    {% endwith %}  -->
+<nav>
+  <div class="row">
+    <!-- <div class=" col  nav-cell btn"> -->
+    <div class="col-xs-12 col-md-5 col-lg-3 nav-cell">
+      <a href="http://127.0.0.1:1064/about">About Orchestrator</a>
+    </div>
+
+    <div class="col-1"></div>
+
+    <div class="col-md-5 col-lg-3 nav-cell">
+      <a href="http://127.0.0.1:1064/placeorder">Place your Order</a>
+    </div>
+
+    <div class="col-1"></div>
+
+    <div class="col-md-5 col-lg-3 nav-cell">
+      <a href="http://127.0.0.1:1064/productionLot">Track production Lot</a>
+    </div>
+
+    <div class="col-1"></div>
+
+    <div class="col-md-5 col-lg-3 nav-cell">
+      <a href="http://127.0.0.1:1064/palletObj">Track Order status</a>
+    </div>
+
+    <div class="col-1"></div>
+
+    <div class="col-md-5 col-lg-3 nav-cell">
+      <a href="http://127.0.0.1:1064/eventSubscriptions">Subscribe To Events</a>
+    </div>
+
+    <div class="col-1"></div>
+
+    <div class="col-md-5 col-lg-3 nav-cell">
+      <a href="http://127.0.0.1:1064/eventUnSubscriptions"
+        >Unsubscribe to Events</a
+      >
+    </div>
+
+    <div class="col-1"></div>
+
+    <div class="col-md-5 col-lg-3 nav-cell">
+      <a href="http://127.0.0.1:1064/about-productionPolicies"
+        >About Production Policies</a
+      >
+    </div>
+
+    <div class="col-1"></div>
+
+    <div class="col-md-5 col-lg-3 nav-cell">
+      <a href="http://127.0.0.1:1064/workstations">Workstations</a>
+    </div>
+
+    <div class="col-1"></div>
+
+    <div class="col-md-5 col-lg-3 nav-cell">
+      <a href="http://127.0.0.1:1064/updateCapability">Update Capabilities</a>
+    </div>
+  </div>
+</nav>
+
+{% endblock %}

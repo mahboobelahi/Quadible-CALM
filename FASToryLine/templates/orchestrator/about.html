@@ -1,0 +1,169 @@
+{% extends 'base.html' %} {% block head %}
+{% endblock %} 
+{% block body %}
+    <div class="container row">
+        <div class="col-8">
+            <p style="text-align: justify;">
+                The current FASTory assembly line is used to 
+                demonstrate the assembly of mobile phones by 
+                drawing mobile phone’s main parts (frame, screen 
+                and keyboard) with different colors and different 
+                shapes. Figure 3 depicts a conceptual example of the 
+                FASTory final product.  
+                With these combinations, the FASTory line is able to 
+                produce 729 (9 different screens x 9 different 
+                keyboards x 9 different frames) variant product 
+                <div class="text-center">
+                <img
+                    src="{{ url_for('static', filename='images/fastoryvarients.png') }}"
+                    class="img-fluid "
+                    alt="FastoryProduct"
+                    style="width: 500px; height: 500px; margin-top: 10px"/>
+                <figcaption class="figure-caption">Cell phone varients.</figcaption>
+                
+                <img
+                    src="{{ url_for('static', filename='images/fastoryproduct.png') }}"
+                    class="img-fluid "
+                    alt="FastoryProduct"
+                    style="width: 500px; height: 100px; margin-top: 10px"/>
+                <figcaption class="figure-caption">Cell phone parts.</figcaption>
+                </div>
+                </p>
+                <p style="text-align: justify;">
+                    To complete the drawing of a cell phone varient certain tasks/steps must be performed in sequence like movement of pallets detween different Workstations,
+                changing of pen color, loading and unloading of papers etc., hence it takes certain time to complete whole process. 
+                Adjecent table lists the tasks perfored by FASTory line and time taken to complete them.
+                <div class="text-center">
+                    <img
+                    src="{{ url_for('static', filename='images/figure21.png') }}"
+                    class="img-fluid "
+                    alt="FastoryProduct"
+                    style="width: 500px; height: 350px; margin-top: 10px"/>
+                <figcaption class="figure-caption">Precedance diagram of operation.</figcaption>
+                </div>
+                </p>
+                <p style="text-align: justify;">
+                In order to balance assembly line i.e equally distribute load and work among FASTory workstation based on their capabilities and available resources.
+                Hence FASTory Line Orchestartor takes customer order, a production policy and current line functionality (capabilities and resources of workstations)
+                to complete production by orchestarting FASTory services accordingly with the goal of optimizing cycle time of workstations.
+                <div class="text-center">
+                <img
+                src="{{ url_for('static', filename='images/orchestrator.png') }}"
+                class="border border-2 border-secondary mx-auto d-block"
+                alt="Buffer Station"
+                style="width: 700px; height: 250px; margin-top: 10px"/>
+                <figcaption class="figure-caption">Inputs to Orchestrator.</figcaption>    
+                </div>
+                <div><a href="/about-productionPolicies" class="btn btn-outline-success btn-xs">Check available production Policies.</a></div>
+                </p>
+        </div>
+        <div class="col-4 table-responsive">
+
+            <table class="table table-bordered table-hover caption-top">
+                <caption>List of tasks</caption>
+                <thead>
+                    <tr>
+                        <th>Sr#</th>
+                        <th>Tasks</th>
+                        <th>Time(s)</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+                    <tr>
+                        <td>1</td>
+                        <td>Frame 1</td>
+                        <td>48</td>
+                    </tr>
+                    <tr>
+                        <td>2</td>
+                        <td>Frame 2</td>
+                        <td>58</td>
+                    </tr>
+                    <tr>
+                        <td>3</td>
+                        <td>Frame 3</td>
+                        <td>46</td>
+                    </tr>
+                    <tr>
+                        <td>4</td>
+                        <td>Screen 1</td>
+                        <td>48</td>
+                    </tr>
+                    <tr>
+                        <td>5</td>
+                        <td>Screen 1</td>
+                        <td>32</td>
+                    </tr>
+                    <tr>
+                        <td>6</td>
+                        <td>Screen 2</td>
+                        <td>25</td>
+                    </tr>
+                    <tr>
+                        <td>7</td>
+                        <td>Screen 3</td>
+                        <td>28</td>
+                    </tr>
+                    <tr>
+                        <td>8</td>
+                        <td>Keypad 1</td>
+                        <td>52</td>
+                    </tr>                    
+                    <tr>
+                        <td>9</td>
+                        <td>Keypad 2</td>
+                        <td>55</td>
+                    </tr>
+                    <tr>
+                        <td>10</td>
+                        <td>Keypad 3</td>
+                        <td>38</td>
+                    </tr>
+                    <tr>
+                        <td>11</td>
+                        <td>Change Pen RED </td>
+                        <td>40</td>
+                    </tr>                    
+                    <tr>
+                        <td>12</td>
+                        <td>Change Pen GREEN</td>
+                        <td>39</td>
+                    </tr>                    
+                    <tr>
+                        <td>13</td>
+                        <td>Change BLUE </td>
+                        <td>41</td>
+                    </tr>
+                    <tr>
+                        <td>14</td>
+                        <td>Load Paper</td>
+                        <td>60</td>
+                    </tr>
+                    <tr>
+                        <td>15</td>
+                        <td>load Pallet</td>
+                        <td>Manual</td>
+                    </tr>
+                    <tr>
+                        <td>16</td>
+                        <td>Unload Pallet</td>
+                        <td>Manual</td>
+                    </tr>
+                    <tr>
+                        <td>17</td>
+                        <td>Z1 to Z3</td>
+                        <td>5</td>
+                    </tr>
+                    <tr>
+                        <td>18</td>
+                        <td>Z1 to Z4 to Z5</td>
+                        <td>6</td>
+                    </tr>
+                </tbody>
+            </table> 
+
+        </div>
+        </div>
+
+{% endblock %}

@@ -1,0 +1,71 @@
+{% extends 'base.html' %} {% block head %}
+<title>Production Lot Status</title>
+{% endblock %} {% block body %}
+<h1>Production lot status</h1>
+
+{% if ProductionLot %}
+  <table class="table table-bordered table-hover">
+    <thead>
+      <tr>
+        <th>Lot ID</th>
+        <th>Frame Recipe</th>
+        <th>Frame Color</th>
+        <th>Screen Recipe</th>
+        <th>Screen Color</th>
+        <th>Keypad Recipe</th>
+        <th>Keypad Color</th>
+        <th>Quantity</th>
+        <th>ProdPolicy</th>
+        <th>Status</th>
+        <th>Time</th>
+      </tr>
+    </thead>
+    <tbody>
+    {% for lot in ProductionLot %}
+      <tr>
+        <td>{{lot.id}}</td>
+        <td>{{lot.FrameType}}</td>
+        <td>
+          {{lot.FrameColor}}
+          <span class="color" style="background-color: {{lot.FrameColor}};"></span>
+        </td>
+        <td>{{lot.ScreenType}}</td>
+        <td>
+          {{lot.ScreenColor}}
+          <span class="color" style="background-color: {{lot.ScreenColor}};"></span>
+        </td>
+        <td>{{lot.KeypadType}}</td>
+        <td>
+          {{lot.KeypadColor}}
+          <span class="color" style="background-color: {{lot.KeypadColor}};"></span>
+        </td>
+        <td>{{lot.Quantity}}</td>
+        <td>{% if lot.ProdPolicy == 1 %}
+            <p class="alert alert-primary">Referance</p>
+        {% elif lot.ProdPolicy == 2 %}
+            <p class="alert alert-info">Fixed Color</p>
+        {% elif lot.ProdPolicy == 3 %}
+            <p class="alert alert-success">Fixed Col-Recipe</p>
+            
+        {% else %}
+            <p class="alert alert-danger">ERROR</p>
+        {% endif %}</td>
+        <td>
+          {% if lot.OrderStatus == 0 %}
+          <p class="alert alert-warning">Under Process</p>
+          {% else %}
+          <p class="alert alert-success">Processed</p>
+          {% endif %}
+        </td>
+        <td>{{lot.timestamp}}</td>
+      </tr>
+    {% endfor %}
+    </tbody>
+  </table>
+{% else %}
+  <div class="alert alert-danger alert-dismissible fade show" role="alert">
+          <strong><h1> No orders.....</h1></strong>
+          <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+  </div> 
+{% endif %}
+{% endblock %}

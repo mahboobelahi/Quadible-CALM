@@ -1,0 +1,16 @@
+<div class="row">
+            <div class="col-1">
+              {% if info.ComponentStatus[0] %}
+              <td><p class="alert alert-danger">MainCNV:Broken</p></td>
+            {% else %}
+              <td><p class="alert alert-success">MainCNV:OK</p></td>
+            {% endif %}
+            </div>
+            <div class="col-1">
+              {% if info.ComponentStatus[1] %}
+              <td><p class="alert alert-danger">MainCNV:Broken</p></td>
+            {% else %}
+              <td><p class="alert alert-success">MainCNV:OK</p></td>
+            {% endif %}
+            </div>
+          </div>
