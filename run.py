@@ -122,23 +122,46 @@ def ProductionPolicy():
 
 ###########Product tracking####################
 #Production Lot Status
-@app.route('/productionLot',methods=['GET'])
+@app.route('/productionLot',methods=['GET','POST','DELETE'])
 def fetchProductionLot():
-    result= DataBase.Orders.query.all()
+    try:
+        if request.method == 'POST':
+            print(f'[XT] Data from order fourm: {request.form["id"]}')
+            DataBase.Orders.query.filter_by(id=request.form['id']).delete()
+            db.session.commit()
 
-    return render_template("orchestrator/productionLotStatus.html", title="Lot-Status",ProductionLot=result)
+        result= DataBase.Orders.query.all()
+        return render_template("orchestrator/productionLotStatus.html", title="Lot-Status",ProductionLot=result)
+    except ValueError as e:
+        flash(f'Invalid JSON:{str(e)}')
+        return render_template("orchestrator/productionLotStatus.html", title="Lot-Status",ProductionLot=result)
+    except exc.SQLAlchemyError as e:
+        flash(f'Ops! {str(e)}')
+        return render_template("orchestrator/productionLotStatus.html", title="Lot-Status",ProductionLot=result)
 
 #Individual Order Status
-@app.route('/palletObj',methods=['GET'])
+@app.route('/palletObj',methods=['GET','POST','DELETE'])
 def fetchPalletObj():
-    result= DataBase.PalletObjects.query.all()
-    if result:
-        Pallet_obj = [res.serialize for res in result]
-        print(result[0].serialize)
+    
+    try:
+        if request.method == 'POST':
+            print(f'[XT] Data from order fourm: {request.form["id"]}')
+            DataBase.PalletObjects.query.filter_by(id=request.form['id']).delete()
+            db.session.commit()
+    
+        result= DataBase.PalletObjects.query.all()
+        if result:
+            Pallet_obj = [res.serialize for res in result]
+            print(result[0].serialize)
+            return render_template("orchestrator/palletObject.html", Pallet_obj=Pallet_obj,title="Order-Status")
+        else:
+            return render_template("orchestrator/palletObject.html", Pallet_obj=None,title="Order-Status")
+    except ValueError as e:
+        flash(f'Invalid JSON:{str(e)}')
         return render_template("orchestrator/palletObject.html", Pallet_obj=Pallet_obj,title="Order-Status")
-    else:
-        return render_template("orchestrator/palletObject.html", Pallet_obj=None,title="Order-Status")
-
+    except exc.SQLAlchemyError as e:
+        flash(f'Ops! {str(e)}')
+        return render_template("orchestrator/palletObject.html", Pallet_obj=Pallet_obj,title="Order-Status")
 #Individual Order Status
 @app.route('/updateCapability',methods=['GET'])
 def updatecapability():

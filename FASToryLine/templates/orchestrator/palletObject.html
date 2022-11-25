@@ -3,61 +3,72 @@
 {% endblock %} {% block body %}
 <h1>Individual Order Status</h1>
 {% if Pallet_obj %}
-    <table class="table table-bordered table-hover">
-      <thead>
-        <tr>
-          <th>Lot Alias</th>
-          <th>Order Number</th>
-          <th>Order System ID</th>
-          <th>Frame Recipe</th>
-          <th>Frame Color</th>
-          <th>Screen Recipe</th>
-          <th>Screen Color</th>
-          <th>Keypad Recipe</th>
-          <th>Keypad Color</th>
-          <th>Status</th>
-          <th>Time</th>
-        </tr>
-      </thead>
+<table class="table table-bordered table-hover">
+  <thead>
+    <tr>
+      <th>Lot Alias</th>
+      <th>Order Number</th>
+      <th>Order System ID</th>
+      <th>Frame Recipe</th>
+      <th>Frame Color</th>
+      <th>Screen Recipe</th>
+      <th>Screen Color</th>
+      <th>Keypad Recipe</th>
+      <th>Keypad Color</th>
+      <th>Status</th>
+      <th>Time</th>
+    </tr>
+  </thead>
 
-      <tbody>
-        {% for lot in Pallet_obj %}
-        <tr>
-          <td>{{lot.LotNumber}}</td>
-          <td>{{loop.index}}</td>
-          <td>{{lot.PalletID}}</td>
-          <td>{{lot.Frame.type}}</td>
-          <td>
-            {{lot.Frame.color}}
-            <!-- <span class="color" style="background-color: {{lot.Frame.color}};"></span> -->
-          </td>
-          <td>{{lot.Screen.type}}</td>
-          <td>
-            {{lot.Screen.color}}
-            <!-- <span class="color" style="background-color: {{lot.Screen.color}};"></span> -->
-          </td>
-          <td>{{lot.Keypad.type}}</td>
-          <td>
-            {{lot.Keypad.color}}
-            <!-- <span class="color" style="background-color: {{lot.Keypad.color}};"></span> -->
-          </td>
-          <td>
-            {% if lot.status == 0 %}
-            <p class="alert alert-warning">Under Process</p>
-            {% else %}
-            <p class="alert alert-success">Processed</p>
-            {% endif %}
-          </td>
-          <td>{{lot.timestamp.0}} {{lot.timestamp.1}}</td>
-        </tr>
-        {% endfor %}
-      </tbody>
-    </table>
+  <tbody>
+    {% for lot in Pallet_obj %}
+    <tr>
+      <td>{{lot.LotNumber}}</td>
+      <td>{{loop.index}}</td>
+      <td>{{lot.PalletID}}</td>
+      <td>{{lot.Frame.type}}</td>
+      <td>
+        {{lot.Frame.color}}
+        <!-- <span class="color" style="background-color: {{lot.Frame.color}};"></span> -->
+      </td>
+      <td>{{lot.Screen.type}}</td>
+      <td>
+        {{lot.Screen.color}}
+        <!-- <span class="color" style="background-color: {{lot.Screen.color}};"></span> -->
+      </td>
+      <td>{{lot.Keypad.type}}</td>
+      <td>
+        {{lot.Keypad.color}}
+        <!-- <span class="color" style="background-color: {{lot.Keypad.color}};"></span> -->
+      </td>
+      <td>
+        {% if lot.status == 0 %}
+        <p class="alert alert-warning">Under Process</p>
+        {% else %}
+        <p class="alert alert-success">Processed</p>
+        {% endif %}
+      </td>
+      <td>{{lot.timestamp.0}} {{lot.timestamp.1}}
+        <form action="/palletObj" method="POST">
+          <input type="hidden" name="id" value="{{loop.index}}" />
+          <button type="submit" class="btn btn-danger">
+            <i class="bi-file-excel-fill" style="font-size: 30px"></i>
+          </button>
+        </form>
+      </td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
 
 {% else %}
-    <div class="alert alert-danger alert-dismissible fade show" role="alert">
-      <strong>No orders.....</strong>
-      <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-  </div> 
-{% endif %}
-{% endblock %}
+<div class="alert alert-danger alert-dismissible fade show" role="alert">
+  <strong>No orders.....</strong>
+  <button
+    type="button"
+    class="btn-close"
+    data-bs-dismiss="alert"
+    aria-label="Close"
+  ></button>
+</div>
+{% endif %} {% endblock %}
