@@ -79,29 +79,7 @@ def formated_orders(raw_orders):#current_order,
         #print('HF8: Temp Order: ', formatted_orders)
     return formatted_orders
 
-# def policyBasedToolChanging(id=None,capability=None):
-#     #robot poliy based serive invokation
-#     print(f"[X] policyBasedToolChanging")
-#     if id:
-#         #  {"id":9,"capabilities":["RED"]}
-        
-#         print(id,WS_obj_list[id-1].WkSINFO(),WS_obj_list[id-1].get_capabilities())
-#         WS_obj_list[id-1].changePenColor(WS_obj_list[id-1].get_capabilities()[0])
-#         return
-#     for obj in WS_obj_list:
-#             if obj.get_ID() == 1 or obj.get_ID() == 7:
-#                 print('Workstation %d has no requesred service.' % obj.get_ID())
-#             else:
-#                 try:
-                    
-#                     if obj.get_capabilities()[0] !='ERROR' and obj.getPenColor() =="NA" :
-#                         obj.changePenColor(obj.get_capabilities()[0])
-#                     elif obj.getPenColor() != obj.get_capabilities()[0]:
-#                         obj.changePenColor(obj.get_capabilities()[0])
-#                     else:
-#                         print(f'Workstation_{obj.get_ID()} capabilities are: {obj.get_capabilities()}')
-#                 except requests.exceptions.RequestException as err:
-#                     print(f"[X-Err] OOps: {err}" )   
+  
 
 def changePen(result):
     try:
