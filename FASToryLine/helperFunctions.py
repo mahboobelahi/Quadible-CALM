@@ -103,21 +103,31 @@ def formated_orders(raw_orders):#current_order,
 #                 except requests.exceptions.RequestException as err:
 #                     print(f"[X-Err] OOps: {err}" )   
 
-def changePen(res):
+def changePen(result):
     try:
-        capability = res.getCapabilities
-        robServiceURL = res.getURLS.get("Robot_service_url")
-        currentPen = requests.post(f'{robServiceURL}GetPenColor',json={}) 
-        if ("ERROR" not in capability and currentPen=='NA'):
-            changePen(robServiceURL+f'ChangePen{capability[0]}')
+        
+
+        if result.WorkCellID ==1 or result.WorkCellID == 7:
+            print(f"[X] Workstation_{result.WorkCellID} does not has pen change service....")
             return
-        else:
-            changePen(robServiceURL+f'ChangePen{capability[0]}')
+        capability = result.getCapabilities
+        robServiceURL = result.getURLS.get("Robot_service_url")
+        res = requests.post(f'{robServiceURL}GetPenColor',json={}) 
+        currentPen = res.json().get("CurrentPen")
+        # print(f"[x] {'ERROR' not in capability},  {currentPen =='NA'}")
+        # {"id":9,"capabilities":["RED"]}
+        if ("ERROR" not in capability and currentPen == 'NA'): #2,9,10,11,12
+            res = requests.post(robServiceURL+f'ChangePen{capability[0]}',json={"destUrl": ""})
+            print(f'[X] Workstation_{result.WorkCellID} has changed Pencolor to {capability[0]}, ({res.status_code},{res.reason})' )
+            return
+        elif "ERROR" not in capability:
+            
+            res = requests.post(robServiceURL+f'ChangePen{capability[0]}',json={"destUrl": ""})
+            print(f'[X] Workstation_{result.WorkCellID} pen updated from {currentPen} to {capability[0]}, ({res.status_code},{res.reason})' )
             return    
-        # Shows response in console
-        print(f'[X] Workstation {res.WorkCellID} has changed Pencolor to {capability[0]}, ({r.status_code},{r.reason})' )
+            
     except requests.exceptions.RequestException as err:
-        print(f"[X-Err] OOps: {err}" ) 
+        print(f"[X-Err] for {result.WorkCellID}OOps: {err}" ) 
 
 def policyBasedToolChanging(id=None,capability=None):
     try:
@@ -130,6 +140,14 @@ def policyBasedToolChanging(id=None,capability=None):
             return
     except exc.SQLAlchemyError as e:
         print(f'[XE] {e}')
+
+def updateDB(result,capability):
+    print(f"[X] {capability}, {result}")
+    try:
+        result.Capabilities = capability
+        db.session.commit()
+    except exc.SQLAlchemyError as e:
+            print(f'[XE] {e}')
 
 def updateCapability(policyID ):
     try:
@@ -146,41 +164,17 @@ def updateCapability(policyID ):
         # WS_capabilities=WorkstationCapabilities.query.\
         #                 with_entities(WorkstationCapabilities.Error).all()   
         
-        for obj in WS_obj_list:
-            obj.update_capabilities(WS_capabilities[obj.get_ID()-1][0])
+        # for obj in WS_obj_list:
+        #     obj.update_capabilities(WS_capabilities[obj.get_ID()-1][0])
+        map(updateDB,WorkstationInfo.query.all(),WS_capabilities)
         time.sleep(1)
-        stratPolicyBasedToolChange=threading.Thread(target=policyBasedToolChanging,args=(result.WorkCellID,))
+        stratPolicyBasedToolChange=threading.Thread(target=policyBasedToolChanging)
         stratPolicyBasedToolChange.daemon=True
         stratPolicyBasedToolChange.start()
 
     except exc.SQLAlchemyError as e:
         print(f'[XE] {e}')
 
-
-def api_updateCapability(policyID ):
-    try:
-        result=Orders.query.filter_by(ProdPolicy=None).all()
-        for res in result:
-            res.ProdPolicy =policyID 
-        db.session.commit() 
-        #dynamc input query with "with_entities"
-        policyID=4 #test id remove this line during final testing
-        WS_capabilities=WorkstationCapabilities.query.with_entities(
-                        eval(f'{WorkstationCapabilities.__tablename__}.{CONFIG.ProdIDtoCapability[policyID]}')
-                        ).all()        
-        #static query
-        # WS_capabilities=WorkstationCapabilities.query.\
-        #                 with_entities(WorkstationCapabilities.Error).all()   
-        
-        for obj in WS_obj_list:
-            obj.update_capabilities(WS_capabilities[obj.get_ID()-1][0])
-        time.sleep(1)
-        stratPolicyBasedToolChange=threading.Thread(target=policyBasedToolChanging,args=(result.WorkCellID,))
-        stratPolicyBasedToolChange.daemon=True
-        stratPolicyBasedToolChange.start()
-
-    except exc.SQLAlchemyError as e:
-        print(f'[XE] {e}')
 
 def instencateWorkstations():
     #WorkstationInfo.query.all()
