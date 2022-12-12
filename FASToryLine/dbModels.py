@@ -24,6 +24,20 @@ class WorkstationInfo(db.Model):
     FetchOrders =db.relationship('Orders',backref='Fetch)unProcessedOrders',lazy=True)
     def __repr__(self):
         return f"Workstation('{self.__dict__}')"
+    
+    @hybrid_property
+    def getCapabilities(self):
+        return self.Capabilities
+
+    @hybrid_property
+    def getURLS(self):
+        return {
+            "WorkCellIP":self.WorkCellIP,
+            "EM_service_url":self.EM_service_url,
+            "CNV_service_url" :self.CNV_service_url,
+            "Robot_service_url" :self.Robot_service_url
+        }
+
 
 class S1000Subscriptions(db.Model):
     __tablename__ = 'EventsSubscriptions'
