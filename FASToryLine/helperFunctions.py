@@ -79,18 +79,57 @@ def formated_orders(raw_orders):#current_order,
         #print('HF8: Temp Order: ', formatted_orders)
     return formatted_orders
 
-def policyBasedToolChanging():
-    #robot poliy based serive invokation
-    for obj in WS_obj_list:
-            if obj.get_ID() == 1 or obj.get_ID() == 7:
-                print('Workstation %d has no requesred service.' % obj.get_ID())
-            else:
+# def policyBasedToolChanging(id=None,capability=None):
+#     #robot poliy based serive invokation
+#     print(f"[X] policyBasedToolChanging")
+#     if id:
+#         #  {"id":9,"capabilities":["RED"]}
+        
+#         print(id,WS_obj_list[id-1].WkSINFO(),WS_obj_list[id-1].get_capabilities())
+#         WS_obj_list[id-1].changePenColor(WS_obj_list[id-1].get_capabilities()[0])
+#         return
+#     for obj in WS_obj_list:
+#             if obj.get_ID() == 1 or obj.get_ID() == 7:
+#                 print('Workstation %d has no requesred service.' % obj.get_ID())
+#             else:
+#                 try:
+                    
+#                     if obj.get_capabilities()[0] !='ERROR' and obj.getPenColor() =="NA" :
+#                         obj.changePenColor(obj.get_capabilities()[0])
+#                     elif obj.getPenColor() != obj.get_capabilities()[0]:
+#                         obj.changePenColor(obj.get_capabilities()[0])
+#                     else:
+#                         print(f'Workstation_{obj.get_ID()} capabilities are: {obj.get_capabilities()}')
+#                 except requests.exceptions.RequestException as err:
+#                     print(f"[X-Err] OOps: {err}" )   
 
-                if obj.get_capabilities()[0] !='ERROR' :
-                    obj.changePenColor(obj.get_capabilities()[0])
-                else:
-                    print(f'Workstation_{obj.get_ID()} is not capable.')
-               
+def changePen(res):
+    try:
+        capability = res.getCapabilities
+        robServiceURL = res.getURLS.get("Robot_service_url")
+        currentPen = requests.post(f'{robServiceURL}GetPenColor',json={}) 
+        if ("ERROR" not in capability and currentPen=='NA'):
+            changePen(robServiceURL+f'ChangePen{capability[0]}')
+            return
+        else:
+            changePen(robServiceURL+f'ChangePen{capability[0]}')
+            return    
+        # Shows response in console
+        print(f'[X] Workstation {res.WorkCellID} has changed Pencolor to {capability[0]}, ({r.status_code},{r.reason})' )
+    except requests.exceptions.RequestException as err:
+        print(f"[X-Err] OOps: {err}" ) 
+
+def policyBasedToolChanging(id=None,capability=None):
+    try:
+        if id:
+            changePen( WorkstationInfo.query.get_or_404(id))
+            return
+        else:
+            for res in WorkstationInfo.query.all():
+                changePen(res)
+            return
+    except exc.SQLAlchemyError as e:
+        print(f'[XE] {e}')
 
 def updateCapability(policyID ):
     try:
@@ -106,16 +145,45 @@ def updateCapability(policyID ):
         #static query
         # WS_capabilities=WorkstationCapabilities.query.\
         #                 with_entities(WorkstationCapabilities.Error).all()   
+        
         for obj in WS_obj_list:
             obj.update_capabilities(WS_capabilities[obj.get_ID()-1][0])
         time.sleep(1)
+        stratPolicyBasedToolChange=threading.Thread(target=policyBasedToolChanging,args=(result.WorkCellID,))
+        stratPolicyBasedToolChange.daemon=True
+        stratPolicyBasedToolChange.start()
 
-        #policyBasedToolChanging()
+    except exc.SQLAlchemyError as e:
+        print(f'[XE] {e}')
+
+
+def api_updateCapability(policyID ):
+    try:
+        result=Orders.query.filter_by(ProdPolicy=None).all()
+        for res in result:
+            res.ProdPolicy =policyID 
+        db.session.commit() 
+        #dynamc input query with "with_entities"
+        policyID=4 #test id remove this line during final testing
+        WS_capabilities=WorkstationCapabilities.query.with_entities(
+                        eval(f'{WorkstationCapabilities.__tablename__}.{CONFIG.ProdIDtoCapability[policyID]}')
+                        ).all()        
+        #static query
+        # WS_capabilities=WorkstationCapabilities.query.\
+        #                 with_entities(WorkstationCapabilities.Error).all()   
+        
+        for obj in WS_obj_list:
+            obj.update_capabilities(WS_capabilities[obj.get_ID()-1][0])
+        time.sleep(1)
+        stratPolicyBasedToolChange=threading.Thread(target=policyBasedToolChanging,args=(result.WorkCellID,))
+        stratPolicyBasedToolChange.daemon=True
+        stratPolicyBasedToolChange.start()
+
     except exc.SQLAlchemyError as e:
         print(f'[XE] {e}')
 
 def instencateWorkstations():
-
+    #WorkstationInfo.query.all()
     #instentiate Workstation servers according to Production policy
     global  WS_obj_list 
     CONFIG.wrkCellLoc_Port = 2000
@@ -136,7 +204,10 @@ def instencateWorkstations():
         print(f'[XHF] Workstation INFO:')
         pprint(temp_obj.WkSINFO())
 
-        #temp_obj.callWhenDBdestroyed()
+        #check record exists in DB otherwise add one
+        if not bool(WorkstationInfo.query.filter_by(WorkCellID=i).first()):
+            #db.session.query(db.exists().where(WorkstationInfo.id == i)).scalar()
+            temp_obj.callWhenDBdestroyed()
         time.sleep(1)
 
         temp_obj.updateIP()
