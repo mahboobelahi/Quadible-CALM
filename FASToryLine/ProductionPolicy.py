@@ -167,7 +167,7 @@ class Workstation:
             
             try:
                 r = requests.post(CNV_RTU_Url_s, json=body)
-                print(f'CNV Zone{zone_name} event subscriptions for WK_{self.ID}, {r.reason}')
+                # print(f'CNV Zone{zone_name} event subscriptions for WK_{self.ID}, {r.reason}')
                 
                 # event_url= DataBase.S1000Subscriptions(
                 #                 Event_url = CNV_RTU_Url_s,
@@ -203,7 +203,7 @@ class Workstation:
             body = {"destUrl": self.url_self+ '/events'}
             try:
                 r = requests.post(ROB_RTU_Url_s, json=body)
-                print(f'Robot {event_name} event subscriptions for WK_{self.ID}, {r.reason}')
+                # print(f'Robot {event_name} event subscriptions for WK_{self.ID}, {r.reason}')
                 # event_url= DataBase.S1000Subscriptions(
                 #                 Event_url = ROB_RTU_Url_s,
                 #                 Destination_url = self.url_self,
@@ -684,7 +684,7 @@ class Workstation:
             if len(ORDERS) != 0:
                 if (
                     event_notif.get('id') == 'Z1_Changed' and\
-                    event_notif.get('senderID') == 'CNV08' and\
+                    event_notif.get('senderID') == 'CNV09' and\
                     event_notif['payload'].get('PalletID','-1')!= '-1' and\
                     event_notif['payload'].get('PalletID') not in pallet_objects
                 ):
