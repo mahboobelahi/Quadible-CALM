@@ -39,7 +39,7 @@ def handle_mqtt_message(client, userdata, message):
             return     
         
         if message.topic == f'{BASE_TOPIC}authentication':
-        
+            
             authResults = message_in
             result = AuthResult(    
                             Authenticated = authResults.get("authenticated"),  
@@ -49,23 +49,27 @@ def handle_mqtt_message(client, userdata, message):
                             )
             db.session.add(result)
             db.session.commit()
+            P(message_in)
             print(f'[X]: Auth result added to DB @ {datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")}')
         elif message.topic == f'{BASE_TOPIC}emotion':
             #{"detail":"Not a valid file was uploaded"}
+            #print(message.topic)
             if message_in.get("Response"):
                 result = Emotion(    
                                 StressLevel = message_in.get("Response").get('stress_level')
                                 )
                 db.session.add(result)
                 db.session.commit()
-                print(f'[X]: Emotion result added to DB @ {datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")}')
+                P(message_in)
+                print(f'[X]: Emotion response result added to DB @ {datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")}')
             else:
                 result = Emotion(    
                 Description = message_in.get("detail")
                 )
                 db.session.add(result)
                 db.session.commit()
-                print(f'[X]: Emotion result added to DB @ {datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")}')
+                P(message_in)
+                print(f'[X]: Emotion Not valid profile result added to DB @ {datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")}')
 
     except exc.SQLAlchemyError as e:
             print(f'[XE] {e}')

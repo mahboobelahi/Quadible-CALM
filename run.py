@@ -38,8 +38,7 @@ def workstations():
 @app.route('/eventSubscriptions')
 def eventSubscription():
     try:
-        URLs= DataBase.S1000Subscriptions.query.with_entities(DataBase.S1000Subscriptions.Event_url,\
-        DataBase.S1000Subscriptions.Destination_url).all()
+        URLs= DataBase.S1000Subscriptions.query.with_entities(DataBase.S1000Subscriptions.Event_url,DataBase.S1000Subscriptions.Destination_url).all()
         for url in URLs:
             print(f"[X-T] {url[0]} >>> {url[1]}")
             time.sleep(.2)
@@ -62,10 +61,10 @@ def eventUnSubscription():
         #DataBase.S1000Subscriptions.query.with_entities(DataBase.S1000Subscriptions.Event_url).all()
         for url in URLs:
             time.sleep(0.2)
-            print(f"[X-T] {url.UnsubscribeEvents}")
+            print(f"[X] Unsubscribing---{url.UnsubscribeEvents}")
             try: 
                 r=requests.delete(url.UnsubscribeEvents)
-                print(f"FASTory Line Event UnSubscription: {r.status_code},{r.reason}")
+                print(f"[X] FASTory Line Event UnSubscription: {r.status_code},{r.reason}")
             except requests.exceptions.RequestException as err:
                 print(f"[X-Err] OOps: {err}" )        
     except exc.SQLAlchemyError as e:
@@ -116,7 +115,7 @@ def ProductionPolicy():
         updateEorkstationCapability.daemon=True
         updateEorkstationCapability.start()
     flash("Orchestrator initializing FASTory Line...")
-    res = requests.post('http://192.168.100.100:2008/startProduction')
+    res = requests.post('http://192.168.100.100:2009/startProduction')
     print(f'[X] {res.status_code}.????{res.reason}')
     return redirect(url_for('welcome'))
 
@@ -179,6 +178,9 @@ def ApiUpdateCapability():
         print(result)
         flash(f'Capability updated for workstation_{result.WorkCellID}')
         db.session.commit()
+        stratPolicyBasedToolChange=threading.Thread(target=HF.policyBasedToolChanging,args=(result.WorkCellID,))
+        stratPolicyBasedToolChange.daemon=True
+        stratPolicyBasedToolChange.start()
         return render_template("orchestrator/capError.html",title="Capability",err=False)
     except ValueError as e:
         flash(f'Invalid JSON:{str(e)}')
@@ -192,10 +194,10 @@ def ApiUpdateCapability():
 
 if __name__ == '__main__':
         
-    # strat_workstations=threading.Timer(2,HF.instencateWorkstations)
-    # strat_workstations.daemon=True
-    # strat_workstations.start()
+    strat_workstations=threading.Timer(2,HF.instencateWorkstations)
+    strat_workstations.daemon=True
+    strat_workstations.start()
     
     
     HF.createModels()
-    app.run(host=CONFIG.orchestrator_IP, port=CONFIG.orchestrator_Port,debug=True)
+    app.run(host=CONFIG.orchestrator_IP, port=CONFIG.orchestrator_Port) #,debug=True
