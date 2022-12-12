@@ -1,5 +1,4 @@
-from sqlalchemy.sql import text
-from pprint import pprint
+from pprint import pprint as P
 import time,threading,socket,requests
 from FASToryLine.dbModels import(Orders,WorkstationCapabilities,PalletObjects,FASToryLineEvents,WorkstationInfo) 
 from FASToryLine import db
@@ -10,6 +9,7 @@ from FASToryLine import ProductionPolicy as WkC
 
 WS_obj_list = list()
 
+# create tables in DB
 def createModels():
     db.create_all()
 
@@ -45,7 +45,7 @@ def insertLineEvents(event_notif,id):
     except exc.SQLAlchemyError as e:
         print(f'[XE] {e}')
 
-###############################################################
+#checking machine local IP
 def get_local_ip():
     s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
     s.connect(("8.8.8.8", 80))
@@ -79,12 +79,9 @@ def formated_orders(raw_orders):#current_order,
         #print('HF8: Temp Order: ', formatted_orders)
     return formatted_orders
 
-  
-
+#called by policyBasedToolChange
 def changePen(result):
     try:
-        
-
         if result.WorkCellID ==1 or result.WorkCellID == 7:
             print(f"[X] Workstation_{result.WorkCellID} does not has pen change service....")
             return
@@ -96,16 +93,22 @@ def changePen(result):
         # {"id":9,"capabilities":["RED"]}
         if ("ERROR" not in capability and currentPen == 'NA'): #2,9,10,11,12
             res = requests.post(robServiceURL+f'ChangePen{capability[0]}',json={"destUrl": ""})
-            print(f'[X] Workstation_{result.WorkCellID} has changed Pencolor to {capability[0]}, ({res.status_code},{res.reason})' )
+            if res.status_code !=200:   
+                print(f'[X]')
+                P(res.json())
+            else:
+                print(f'[X] Workstation_{result.WorkCellID} has changed Pencolor to {capability[0]}, ({res.status_code},{res.reason})' )
             return
         elif "ERROR" not in capability:
-            
             res = requests.post(robServiceURL+f'ChangePen{capability[0]}',json={"destUrl": ""})
-            print(f'[X] Workstation_{result.WorkCellID} pen updated from {currentPen} to {capability[0]}, ({res.status_code},{res.reason})' )
-            return    
-            
+            if res.status_code !=200:   
+                print(f'[X] Workstation_{result.WorkCellID}')
+                P(res.json())
+            else:
+                print(f'[X] Workstation_{result.WorkCellID} has changed Pencolor to {capability[0]}, ({res.status_code},{res.reason})' )
+            return       
     except requests.exceptions.RequestException as err:
-        print(f"[X-Err] for {result.WorkCellID}OOps: {err}" ) 
+        print(f"[X-Err] for Workstation_{result.WorkCellID} OOps: {err}" ) 
 
 def policyBasedToolChanging(id=None,capability=None):
     try:
@@ -120,7 +123,7 @@ def policyBasedToolChanging(id=None,capability=None):
         print(f'[XE] {e}')
 
 def updateDB(result,capability):
-    print(f"[X] {capability}, {result}")
+    #print(f"[X] {capability}, {result}")
     try:
         result.Capabilities = capability
         db.session.commit()
@@ -138,18 +141,16 @@ def updateCapability(policyID ):
         WS_capabilities=WorkstationCapabilities.query.with_entities(
                         eval(f'{WorkstationCapabilities.__tablename__}.{CONFIG.ProdIDtoCapability[policyID]}')
                         ).all()        
+        
         #static query
         # WS_capabilities=WorkstationCapabilities.query.\
         #                 with_entities(WorkstationCapabilities.Error).all()   
-        
-        # for obj in WS_obj_list:
-        #     obj.update_capabilities(WS_capabilities[obj.get_ID()-1][0])
-        map(updateDB,WorkstationInfo.query.all(),WS_capabilities)
+        result = WorkstationInfo.query.all()
+        list(map(updateDB,WorkstationInfo.query.all(),[cap for (cap,) in WS_capabilities]))
         time.sleep(1)
         stratPolicyBasedToolChange=threading.Thread(target=policyBasedToolChanging)
         stratPolicyBasedToolChange.daemon=True
         stratPolicyBasedToolChange.start()
-
     except exc.SQLAlchemyError as e:
         print(f'[XE] {e}')
 
@@ -174,7 +175,7 @@ def instencateWorkstations():
         threading.Thread(target=temp_obj.runApp,daemon=True).start()
         time.sleep(0.5)
         print(f'[XHF] Workstation INFO:')
-        pprint(temp_obj.WkSINFO())
+        P(temp_obj.WkSINFO())
 
         #check record exists in DB otherwise add one
         if not bool(WorkstationInfo.query.filter_by(WorkCellID=i).first()):
