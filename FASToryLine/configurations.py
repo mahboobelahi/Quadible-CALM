@@ -31,7 +31,7 @@ robot_make = ["Yaskawa","Sony","Kuka","ABB","Omron-Adept","Sony","N/A","Omron-Ad
 robot_type = ["Dual-Arm","SCARA","6-axis","6-axis","6-axis","SCARA","N/A","SCARA-eCobra","SCARA",     "SCARA","SCARA","SCARA"]
 
 ComponentStatus =[
-    #[ConveyorMain,ConveyorBypassRobot]
+    #[MainConveyor,BypassConveyor,Robot]
     [False,None,True],[True,True,True],[True,True,False],
     [True,True,False],[True,True,False],[True,False,False],
     [True,None,False],[True,True,False],[True,True,True],

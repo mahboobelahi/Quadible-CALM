@@ -20,7 +20,7 @@ class WorkstationInfo(db.Model):
     #relations
     ProcessedComponents= db.relationship('CompletedComponents',backref='components',lazy=True)#,uselist=False
     LineEvents= db.relationship('FASToryLineEvents',backref='SimEvents',lazy=True)#,uselist=False
-    S1000Subscriptions =db.relationship('S1000Subscriptions',backref='Subscriptions',lazy=True)#,uselist=False
+    #S1000Subscriptions =db.relationship('S1000Subscriptions',backref='Subscriptions',lazy=True)#,uselist=False
     FetchOrders =db.relationship('Orders',backref='Fetch)unProcessedOrders',lazy=True)
     def __repr__(self):
         return f"Workstation('{self.__dict__}')"
@@ -47,7 +47,10 @@ class S1000Subscriptions(db.Model):
     Fkey = db.Column(db.Integer, db.ForeignKey('workstationInfo.id'),nullable=False)
 
     @hybrid_property
-    def UnsubscribeEvents(self):
+    def getSubsEventURLS(self):
+        return (f'{self.Destination_url}/events',self.Event_url)
+    @hybrid_property
+    def getUnSubsEventURLS(self):
         return self.Event_url.split('/notifs')[0]
 
 class FASToryLineEvents(db.Model):

@@ -1,7 +1,16 @@
 {% extends 'base.html' %} {% block head %}
 <title style="color: orchid">Order</title>
 {% endblock %} {% block body %}
+<div class="row">
+  <div class="col-6">
 <h1 style="color: orchid; text-align: justify">Place your Order here.</h1>
+  </div>
+  
+  <div class="col-4">
+  <a href="/productionLot" style="margin-top: 10px;" class="btn btn-outline-info btn-lg">Track Production Lot</a>
+  </div>
+</div>
+
 <hr />
 <!--to upload data filling form to server app-->
 <!--Screen specifications-->
@@ -109,19 +118,21 @@
     <div><a href="/about-productionPolicies" class="btn btn-outline-warning btn-xs">About Production Policies.</a></div>
     <hr>
     <div  class="form-check form-switch">
-      <form action="/production-policy" method="POST">
-        <input class="form-check-input" type="radio" name="productionPolicy" id="Ref" value=1> Referance Production Policy <br>
-        <input class="form-check-input" type="radio" name="productionPolicy" id="FixedCol" value=2> Fixed Color ProductionPolicy<br>
-        <input class="form-check-input" type="radio" name="productionPolicy" id="FixedColRes" value=3 checked> Fixed Color and Fixed Recipe ProductionPolicy<br>
-        <input class="form-check-input" type="radio" name="productionPolicy" id="Error" value=4> With Errored Workstations ProductionPolicy<br>
+        <form action="/production-policy" method="POST">
+            <input class="form-check-input" type="radio" name="productionPolicy" id="Ref" value=1> Referance Production Policy <br>
+            <input class="form-check-input" type="radio" name="productionPolicy" id="FixedCol" value=2> Fixed Color ProductionPolicy<br>
+            <input class="form-check-input" type="radio" name="productionPolicy" id="FixedColRes" value=3 checked> Fixed Color and Fixed Recipe ProductionPolicy<br>
+            <input class="form-check-input" type="radio" name="productionPolicy" id="Error" value=4> With Errored Workstations ProductionPolicy<br>
 
-        <br>
-        <div class="hstack gap-3">
-        <input class="btn btn-outline-success btn-sm" type="submit" name="prodectionPolicy" value="Start Production"/>
-        <!-- <div><a href="http://127.0.0.1:1064/production-policy" class="btn btn-outline-success btn-sm">Start Production</a></div> -->
-         <div class="vr"></div>
-        <div><a href="/" class="btn btn-outline-info btn-sm">Go to main page</a></div>
-      </form>
+            <br>
+            <div class="hstack gap-3">
+            <input class="btn btn-outline-success btn-sm" type="submit" name="prodectionPolicy" value="Start Production"/>
+            <!-- <div><a href="http://127.0.0.1:1064/production-policy" class="btn btn-outline-success btn-sm">Start Production</a></div> -->
+            <div class="vr"></div>
+            <div><a href="/" class="btn btn-outline-info btn-sm">Go to main page</a></div>
+            <div class="vr"></div>
+            <div><a href="/updateCapability" class="btn btn-outline-warning btn-sm">Update Cell Capability</a></div>
+        </form>
     </div>
 
     </div>

@@ -38,15 +38,20 @@ def workstations():
 @app.route('/eventSubscriptions')
 def eventSubscription():
     try:
-        URLs= DataBase.S1000Subscriptions.query.with_entities(DataBase.S1000Subscriptions.Event_url,DataBase.S1000Subscriptions.Destination_url).all()
-        for url in URLs:
-            print(f"[X-T] {url[0]} >>> {url[1]}")
-            time.sleep(.2)
-            try: 
-                r=requests.post(url[0],json={"destUrl":url[1]})
-                print(f"FASTory Line Event Subscription: {r.status_code},{r.reason}")
-            except requests.exceptions.RequestException as err:
-                print("[X-Err] OOps: Something Else", err)
+        
+        # [getEventURLs(res) for res in DataBase.WorkstationInfo.query.all() if (res.WorkCellID not in [1,7] and "ERROR" not in res.getCapabilities)]
+        # URLs= [DataBase.S1000Subscriptions.query.with_entities(DataBase.S1000Subscriptions.Event_url,DataBase.S1000Subscriptions.Destination_url).filter_by(Fkey=t.WorkCellID).all() for t in test]
+        #[getEventURLs(res) for res in DataBase.WorkstationInfo.query.all() if (res.WorkCellID not in [1,7] and "ERROR" not in res.getCapabilities)]
+        #Too much crazy query
+        #URLs= [DataBase.S1000Subscriptions.query.with_entities(DataBase.S1000Subscriptions.Event_url,DataBase.S1000Subscriptions.Destination_url).filter_by(Fkey=res.WorkCellID).all()  for res in DataBase.WorkstationInfo.query.all() if (res.WorkCellID not in [1,7] and "ERROR" not in res.getCapabilities)]
+        #URLs= DataBase.S1000Subscriptions.query.with_entities(DataBase.S1000Subscriptions.Event_url,DataBase.S1000Subscriptions.Destination_url).all()
+        # a better choice
+        filteredURLS= [DataBase.S1000Subscriptions.query.filter_by(Fkey=res.WorkCellID).all() for res in DataBase.WorkstationInfo.query.all() if( res.WorkCellID not in [1,7]and "ERROR" not in res.getCapabilities)]
+        for url in filteredURLS:
+            #print(f"[X-ORC] {url}")
+            list(map(HF.subEvents, url))
+            
+        
     except exc.SQLAlchemyError as e:
         print(f'[XE] {e}')
 
@@ -57,16 +62,10 @@ def eventSubscription():
 @app.route('/eventUnSubscriptions')
 def eventUnSubscription():
     try:
-        URLs= DataBase.S1000Subscriptions.query.all()
-        #DataBase.S1000Subscriptions.query.with_entities(DataBase.S1000Subscriptions.Event_url).all()
-        for url in URLs:
-            time.sleep(0.2)
-            print(f"[X] Unsubscribing---{url.UnsubscribeEvents}")
-            try: 
-                r=requests.delete(url.UnsubscribeEvents)
-                print(f"[X] FASTory Line Event UnSubscription: {r.status_code},{r.reason}")
-            except requests.exceptions.RequestException as err:
-                print(f"[X-Err] OOps: {err}" )        
+        filteredURLS= [DataBase.S1000Subscriptions.query.filter_by(Fkey=res.WorkCellID).all() for res in DataBase.WorkstationInfo.query.all() if( res.WorkCellID not in [1,7]and "ERROR" not in res.getCapabilities)]
+        for url in filteredURLS:
+            #print(f"[X-ORC] {url}")
+            list(map(HF.UnSubEvents, url))       
     except exc.SQLAlchemyError as e:
         print(f'[XE] {e}')
 
@@ -144,8 +143,9 @@ def fetchPalletObj():
     
     try:
         if request.method == 'POST':
-            print(f'[XT] Data from order fourm: {request.form["id"]}')
-            DataBase.PalletObjects.query.filter_by(id=request.form['id']).delete()
+            
+            print(f'[XT] Data from order fourm: {request.form}')
+            DataBase.PalletObjects.query.filter_by(PalletID=request.form['palletRFIDtag']).delete()
             db.session.commit()
     
         result= DataBase.PalletObjects.query.all()
@@ -194,10 +194,10 @@ def ApiUpdateCapability():
 
 if __name__ == '__main__':
         
-    strat_workstations=threading.Timer(2,HF.instencateWorkstations)
-    strat_workstations.daemon=True
-    strat_workstations.start()
+    # strat_workstations=threading.Timer(2,HF.instencateWorkstations)
+    # strat_workstations.daemon=True
+    # strat_workstations.start()
     
     
     HF.createModels()
-    app.run(host=CONFIG.orchestrator_IP, port=CONFIG.orchestrator_Port) #,debug=True
+    app.run(host=CONFIG.orchestrator_IP, port=CONFIG.orchestrator_Port,debug=True) #,debug=True

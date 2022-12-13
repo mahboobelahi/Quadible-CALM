@@ -35,13 +35,13 @@ class Pallet:
         return self.Order_Alias
 
     def get_Frame_specs(self):
-        return self.Frame_specs
+        return self.Frame_Specs
 
     def get_Screen_specs(self):
-        return self.Screen_specs
+        return self.Screen_Specs
 
     def get_Keypad_specs(self):
-        return self.Keypad_specs
+        return self.Keypad_Specs
 
     def get_quantity(self):
         return self.quantity

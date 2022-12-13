@@ -100,10 +100,14 @@ class Workstation:
         return self.ID
 
     def get_capabilities(self):
-        return self.capabilities
+        try:
+            return DataBase.WorkstationInfo.query.get_or_404(self.ID).Capabilities 
+        except exc.SQLAlchemyError as e:
+            print(f'[XE] {e}')
 
     def get_currentPallet(self):
         return self.currentPallet
+
 
     def get_waitingPallet(self):
         return self.waitingPallet
@@ -167,15 +171,15 @@ class Workstation:
             
             try:
                 r = requests.post(CNV_RTU_Url_s, json=body)
-                # print(f'CNV Zone{zone_name} event subscriptions for WK_{self.ID}, {r.reason}')
+                # print(f'[X] CNV Zone{zone_name} event subscriptions for WK_{self.ID}, {r.reason}')
                 
-                # event_url= DataBase.S1000Subscriptions(
-                #                 Event_url = CNV_RTU_Url_s,
-                #                 Destination_url = self.url_self,
-                #                 Fkey = self.ID)
+                event_url= DataBase.S1000Subscriptions(
+                                Event_url = CNV_RTU_Url_s,
+                                Destination_url = self.url_self,
+                                Fkey = self.ID)
 
-                # db.session.add(event_url)
-                # db.session.commit()
+                db.session.add(event_url)
+                db.session.commit()
 
             except requests.exceptions.RequestException as err:
                 print("[X] OOps: Something Else", err)                   
@@ -203,14 +207,14 @@ class Workstation:
             body = {"destUrl": self.url_self+ '/events'}
             try:
                 r = requests.post(ROB_RTU_Url_s, json=body)
-                # print(f'Robot {event_name} event subscriptions for WK_{self.ID}, {r.reason}')
-                # event_url= DataBase.S1000Subscriptions(
-                #                 Event_url = ROB_RTU_Url_s,
-                #                 Destination_url = self.url_self,
-                #                 Fkey = self.ID)
+                #print(f'[X] Robot {event_name} event subscriptions for WK_{self.ID}, {r.reason}')
+                event_url= DataBase.S1000Subscriptions(
+                                Event_url = ROB_RTU_Url_s,
+                                Destination_url = self.url_self,
+                                Fkey = self.ID)
 
-                # db.session.add(event_url)
-                # db.session.commit()
+                db.session.add(event_url)
+                db.session.commit()
 
             except requests.exceptions.RequestException as err:
                 print("[X] OOps: Something Else", err)
@@ -431,8 +435,8 @@ class Workstation:
         permission = (frame_condition or\
                      screen_condition or\
                      keypad_condition)
-        print('permission>>>>',permission)
-        print('check>>>>>',check)
+        print(f'[X] permission>>>> {permission}')
+        print(f'[X] permission>>>> {check}')
         print((permission and check))
 
         if (self.get_ID() == 7 or self.get_ID() == 1 or (permission and check)):
@@ -475,14 +479,14 @@ class Workstation:
 
             threading.Timer(0.2, self.TransZone, args=(str(current_pallet.get_current_zone()) +
                            str(current_pallet.get_next_zone()),current_pallet)).start()
-
+        return ''
     # main with drawing
 
     def main_transfer_wd_drawing(self,current_pallet):
         global Drawing_update
         Drawing_update = True
         pos_status = True
-        print('\n----------main_transfer_wd_drawing----------\n')
+        print('\n[X]----------main_transfer_wd_drawing----------\n')
 
         permission = False
 
@@ -524,25 +528,12 @@ class Workstation:
             count = count+1
             self.pallet_load_unload('UnloadPallet')
             pos_status = False;
-
-            # Sq.update_piece_status(current_pallet.get_Order_Alias(),current_pallet.get_PID())
-            # qnty = Sq.fetch_order_alias(current_pallet.get_Order_Alias())
-            # print('qnty: ',qnty)
-
-            # print(current_pallet.get_Order_Alias(),type(Sq.fetch_order_qnty(current_pallet.get_Order_Alias()[-1])[0][0]),
-            #       Sq.fetch_order_qnty(current_pallet.get_Order_Alias()[-1])[0][0])
-
-            # if(Sq.fetch_order_qnty(current_pallet.get_Order_Alias()[-1])[0][0] ==
-            #     qnty):
-            #     Sq.update_order_status(current_pallet.get_Order_Alias()[-1])
-
-            print('???????????????',count)
+            print('[X] ???????????????',count)
             print(current_pallet.info())
             pallet_objects.pop(current_pallet.get_PID())
-            #print('???????????????',pallet_objects)
             return pos_status
+        
         # drawing command
-
         elif (self.get_ID() !=7 and self.get_ID()!=1) and \
                 current_pallet.get_current_zone() == 3 and\
                  not current_pallet.get_order_status()  and\
@@ -572,74 +563,44 @@ class Workstation:
         pos_status = True
 
         if event_notif['id'] == 'PenChangeEnded':
-            print('Penchanged event successfull')
+            print(f"[X] Penchanged event successfull for {event_notif.get('senderID')}")
             return ''
-
-        # #accessing palletID by avoiding keyerror
-        # if event_notif['payload'].get('PalletID') == 'undefined' or\
-        #         (len(event_notif['payload']) == 0 and\
-        #          event_notif['senderID'] !='ROB1'):
-
-        #     print("?????????")
-        #     #return ''
-
-        # if (  len(event_notif['payload']) != 0 and\
-        #       event_notif['payload']['PalletID'] != '-1' and \
-        #       event_notif['payload']['PalletID'] not in pallet_objects.keys() and \
-        #       event_notif['senderID'] == 'SimCNV7'):
-
-        #     time.sleep(.25)
-        #     ROB_ser_URL = 'http://localhost:3000/RTU/SimROB7/services/UnloadPallet'
-        #     # Submit POST request
-        #     #headers = {"Content-Type": "application/json"}
-        #     r = requests.post(ROB_ser_URL, json={"destUrl": ""})#, headers=headers)//{self.url_self}
-        #     print("Pallet is Unloaded:", r.status_code, r.reason)
-        #     print("OCCURED?????????")
-        #     return ''
-
-
+        #accessing palletID by avoiding keyerror
         palletID = event_notif['payload'].get('PalletID',0)
-#        current_pallet = pallet_objects[palletID]
-        if event_notif['payload'].get('PalletID',0) == '-1' and \
-                event_notif['id'] != 'PaperLoaded':
 
-            self.release(event_notif['id'])
-            return
+        if event_notif['id'] == 'DrawEndExecution' or \
+                event_notif['id'] == 'PenChangeEnded':
 
+            current_pallet =  pallet_objects[self.get_currentPallet().get_PID()]
+
+        elif palletID !=0 :
+                if event_notif['payload'].get('PalletID') in pallet_objects.keys():
+
+                    current_pallet = pallet_objects[palletID]
+                else:
+                    current_pallet = self.get_currentPallet()
+
+        # movement between Zones
+        if  current_pallet.get_current_zone() == 1 or \
+            current_pallet.get_current_zone() == 4 or \
+            current_pallet.get_current_zone() == 5:
+            print('', current_pallet.get_PID(), '#####################_F1_###########################')
+            self.bypass(current_pallet)
         else:
-            if event_notif['id'] == 'DrawEndExecution' or \
-                 event_notif['id'] == 'PenChangeEnded':
+            if current_pallet.get_current_zone() == 2:
+                current_pallet.set_next_zone(3)
+                print('', current_pallet.get_PID(), '#####################_F2_###########################')
+            elif current_pallet.get_current_zone() == 3:
+                current_pallet.set_next_zone(5)
+                print('', current_pallet.get_PID(), '#####################_F3_###########################')
+            print((pos_status and Drawing_update),'',self.ID,'', current_pallet.get_PID(), '#####################main_transfer_wd_drawing###########################')
+            pos_status = self.main_transfer_wd_drawing(current_pallet)
 
-                current_pallet =  pallet_objects[self.get_currentPallet().get_PID()]
+        if pos_status and Drawing_update:
 
-            elif palletID !=0 :
-                    if event_notif['payload'].get('PalletID') in pallet_objects.keys():
-
-                        current_pallet = pallet_objects[palletID]
-                    else:
-                        current_pallet = self.get_currentPallet()
-
-            # movement between Zones
-            if  current_pallet.get_current_zone() == 1 or \
-                current_pallet.get_current_zone() == 4 or \
-                current_pallet.get_current_zone() == 5:
-                print('', current_pallet.get_PID(), '#####################_F1_###########################')
-                self.bypass(current_pallet)
-            else:
-                if current_pallet.get_current_zone() == 2:
-                    current_pallet.set_next_zone(3)
-                    print('', current_pallet.get_PID(), '#####################_F2_###########################')
-                elif current_pallet.get_current_zone() == 3:
-                    current_pallet.set_next_zone(5)
-                    print('', current_pallet.get_PID(), '#####################_F3_###########################')
-                print((pos_status and Drawing_update),'',self.ID,'', current_pallet.get_PID(), '#####################main_transfer_wd_drawing###########################')
-                pos_status = self.main_transfer_wd_drawing(current_pallet)
-
-            if pos_status and Drawing_update:
-
-                current_pallet.set_current_zone(current_pallet.get_next_zone())
-                print('POS>>>>',self.get_ID(),'',current_pallet.get_PID(),'',current_pallet.get_current_zone(),'',current_pallet.get_next_zone())
-                
+            current_pallet.set_current_zone(current_pallet.get_next_zone())
+            print('POS>>>>',self.get_ID(),'',current_pallet.get_PID(),'',current_pallet.get_current_zone(),'',current_pallet.get_next_zone())
+            
     #*******************************************
     #   Flask Application
     #*******************************************
@@ -684,7 +645,7 @@ class Workstation:
             if len(ORDERS) != 0:
                 if (
                     event_notif.get('id') == 'Z1_Changed' and\
-                    event_notif.get('senderID') == 'CNV09' and\
+                    event_notif.get('senderID') == 'CNV08' and\
                     event_notif['payload'].get('PalletID','-1')!= '-1' and\
                     event_notif['payload'].get('PalletID') not in pallet_objects
                 ):
@@ -717,20 +678,16 @@ class Workstation:
         @app.route('/startProduction', methods=['POST'])
         def startProduction():
             global ORDERS
+
             try:
                 result = DataBase.WorkstationInfo.query.filter_by(WorkCellID=7).first()
                 # result= DataBase.Orders.query.filter_by(IsFetched=False).all()
-                [ORDERS.append(res.getOrder) for res in result.FetchOrders if not(res.IsFetched)]   
+                [ORDERS.append(HF.getAndSetIsFetchOrders(res)) for res in result.FetchOrders if not(res.IsFetched)]   
             except exc.SQLAlchemyError as e:
                 print(f'[XE] {e}')
-
-            
-            # print('app4:_order_obj_list: \n', ORDERS)
             print('app5:_ORDERS_: \n')
-            pprint(ORDERS)  # .items(),type(ORDERS)
-            # print(json.dumps( ORDERS, indent=2, sort_keys=True))
+            pprint(ORDERS) 
             flash('Production lot ready for process')
-
             return redirect("http://127.0.0.1:1064/placeorder")
 
-        app.run('0.0.0.0',port=self.port)
+        app.run('0.0.0.0',port=self.port,debug=False)

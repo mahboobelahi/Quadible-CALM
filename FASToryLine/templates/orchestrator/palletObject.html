@@ -2,6 +2,7 @@
 <title>Individual Order Status</title>
 {% endblock %} {% block body %}
 <h1>Individual Order Status</h1>
+
 {% if Pallet_obj %}
 <table class="table table-bordered table-hover">
   <thead>
@@ -50,7 +51,7 @@
       </td>
       <td>{{lot.timestamp.0}} {{lot.timestamp.1}}
         <form action="/palletObj" method="POST">
-          <input type="hidden" name="id" value="{{loop.index}}" />
+          <input type="hidden" name="palletRFIDtag" value="{{lot.PalletID}}" />
           <button type="submit" class="btn btn-danger">
             <i class="bi-file-excel-fill" style="font-size: 30px"></i>
           </button>
@@ -62,13 +63,25 @@
 </table>
 
 {% else %}
-<div class="alert alert-danger alert-dismissible fade show" role="alert">
-  <strong>No orders.....</strong>
-  <button
-    type="button"
-    class="btn-close"
-    data-bs-dismiss="alert"
-    aria-label="Close"
-  ></button>
+<div class="row">
+  <div class="col-8">
+    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+      <strong><h1>No orders found for any production lot.....</h1></strong>
+      <button
+        type="button"
+        class="btn-close"
+        data-bs-dismiss="alert"
+        aria-label="Close"
+      ></button>
+    </div>
+  </div>
+  <div class="col-4">
+    <a
+      href="/placeorder"
+      style="margin-top: 10px"
+      class="btn btn-outline-primary btn-lg"
+      >Want to place orders?
+    </a>
+  </div>
 </div>
 {% endif %} {% endblock %}
