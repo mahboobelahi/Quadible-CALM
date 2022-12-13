@@ -1,8 +1,23 @@
 {% extends 'base.html' %} {% block head %}
 <title>Production Lot Status</title>
 {% endblock %} {% block body %}
-<h1>Production lot status</h1>
 
+<div class="row">
+  <div class="col-6">
+    <h1>Production lot status</h1>
+  </div>
+{% if ProductionLot %}
+  <div class="col-4">
+    
+    <a
+      href="/palletObj"
+      style="margin-top: 10px"
+      class="btn btn-outline-primary btn-lg"
+      >Track Orders in Lot
+    </a>
+  </div>
+  {%endif%}
+</div>
 {% if ProductionLot %}
 <table
   class="table table-bordered table-hover .table-responsive{-sm|-md|-lg|-xl|-xxl}"
@@ -87,13 +102,25 @@
   </tbody>
 </table>
 {% else %}
-<div class="alert alert-danger alert-dismissible fade show" role="alert">
-  <strong><h1>No orders.....</h1></strong>
-  <button
-    type="button"
-    class="btn-close"
-    data-bs-dismiss="alert"
-    aria-label="Close"
-  ></button>
+<div class="row">
+  <div class="col-6">
+    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+      <strong><h1>No orders Found.....</h1></strong>
+      <button
+        type="button"
+        class="btn-close"
+        data-bs-dismiss="alert"
+        aria-label="Close"
+      ></button>
+    </div>
+  </div>
+  <div class="col-4">
+    <a
+      href="/placeorder"
+      style="margin-top: 10px"
+      class="btn btn-outline-primary btn-lg"
+      >Want to place orders?
+    </a>
+  </div>
 </div>
 {% endif %} {% endblock %}
