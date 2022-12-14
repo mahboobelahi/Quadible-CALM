@@ -641,11 +641,11 @@ class Workstation:
             global count
             event_notif = request.json
             #HF.insertLineEvents(event_notif,self.ID)
-            print(f'New event received: {event_notif}')
+            print(f'[X] New event received: {event_notif}')
             if len(ORDERS) != 0:
                 if (
                     event_notif.get('id') == 'Z1_Changed' and\
-                    event_notif.get('senderID') == 'CNV08' and\
+                    event_notif.get('senderID') == 'CNV09' and\
                     event_notif['payload'].get('PalletID','-1')!= '-1' and\
                     event_notif['payload'].get('PalletID') not in pallet_objects
                 ):
@@ -661,17 +661,13 @@ class Workstation:
                     PID = event_notif.get('payload').get('PalletID')
 
                     pallet_objects[PID] = PC.Pallet(PID, temp[0].get("LotNumber"), temp[1], temp[2], temp[3])
-                    pprint(pallet_objects[PID].info())
-                    # print('\n')
+                    print(f'[X] PalletInfo {pallet_objects[PID].info()}')
                     pallet_obj = pallet_objects[PID].info()
-                    # pallet_data.append(False)
-                    # pallet_data.append(datetime.now().strftime("%m/%d/%Y, %H:%M:%S"))
                     HF.insertPalletInfo(pallet_obj)
 
-            print('WkC_E_R_G: '+str(len(ORDERS))+'\n')
-            #pprint(request.json)
+            print(f'[X]: Remaining orders: {len(ORDERS)}')
             # master function
-            self.startprocess(event_notif)
+            #self.startprocess(event_notif)
 
             return 'OK'
 

@@ -171,9 +171,14 @@ def instencateWorkstations():
     #instentiate Workstation servers according to Production policy
     global  WS_obj_list 
     CONFIG.wrkCellLoc_Port = 2000
-    # print([res for res in WorkstationInfo.query.all() if( res.WorkCellID not in [1,7]and "ERROR" not in res.getCapabilities)])
-    # print(len([res for res in WorkstationInfo.query.all() if( res.WorkCellID not in [1,7]and "ERROR" not in res.getCapabilities)])+1)
-    for i in range(1,len([res for res in WorkstationInfo.query.all() if( res.WorkCellID not in [1,7]and "ERROR" not in res.getCapabilities)])+1):
+    for i in range(1,13):
+        #change capabilities for policies
+        if i in [1,2,3,4,5,6,7,8]:
+            continue
+        # if i !=7 and  i!=10:
+        #     continue
+        # if  i!=10:
+        #      continue
         temp_obj=WkC.Workstation(i,CONFIG.wrkCellLoc_Port+i,
                                 CONFIG.robot_make[i-1],CONFIG.robot_type[i-1],
                                 CONFIG.ComponentStatus[i-1])
@@ -218,7 +223,7 @@ def instencateWorkstations():
 def sendHTTPReqtoS1000(url, Unsubs=False):
     try: 
         if not Unsubs:
-            r=requests.post(url[1],json={"destUrl":f"{url[0]}/events"})
+            r=requests.post(url[1],json={"destUrl":f"{url[0]}"})
             print(f"[X] FASTory Line Event Subscription: {r.status_code},{r.reason}")
         else:
              r=requests.delete(url)

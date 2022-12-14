@@ -116,7 +116,7 @@ def ProductionPolicy():
     flash("Orchestrator initializing FASTory Line...")
     res = requests.post('http://192.168.100.100:2009/startProduction')
     print(f'[X] {res.status_code}.????{res.reason}')
-    return  (url_for('welcome'))
+    return  redirect(url_for('welcome'))
 
 ###########Product tracking####################
 #Production Lot Status
