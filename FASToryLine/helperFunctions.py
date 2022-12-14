@@ -171,15 +171,9 @@ def instencateWorkstations():
     #instentiate Workstation servers according to Production policy
     global  WS_obj_list 
     CONFIG.wrkCellLoc_Port = 2000
-    
-    for i in range(1,13):
-        #change capabilities for policies
-        # if i in [1,2,3,4,5,6,7]:
-        #     continue
-        # if i !=7 and  i!=10:
-        #     continue
-        # if  i!=10:
-        #      continue
+    # print([res for res in WorkstationInfo.query.all() if( res.WorkCellID not in [1,7]and "ERROR" not in res.getCapabilities)])
+    # print(len([res for res in WorkstationInfo.query.all() if( res.WorkCellID not in [1,7]and "ERROR" not in res.getCapabilities)])+1)
+    for i in range(1,len([res for res in WorkstationInfo.query.all() if( res.WorkCellID not in [1,7]and "ERROR" not in res.getCapabilities)])+1):
         temp_obj=WkC.Workstation(i,CONFIG.wrkCellLoc_Port+i,
                                 CONFIG.robot_make[i-1],CONFIG.robot_type[i-1],
                                 CONFIG.ComponentStatus[i-1])
