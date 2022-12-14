@@ -6,9 +6,8 @@
   <div class="col-6">
     <h1>Production lot status</h1>
   </div>
-{% if ProductionLot %}
+  {% if ProductionLot %}
   <div class="col-4">
-    
     <a
       href="/palletObj"
       style="margin-top: 10px"
@@ -24,7 +23,7 @@
 >
   <thead>
     <tr>
-      <th>Lot ID</th>
+      <th>Lot Sys ID</th>
       <th>Frame Recipe</th>
       <th>Frame Color</th>
       <th>Screen Recipe</th>
@@ -41,8 +40,8 @@
   <tbody>
     {% for lot in ProductionLot %}
     <tr>
-      <!-- lot.id -->
-      <td>{{loop.index}}</td>
+      <td>{{lot.id}}</td>
+      <!-- <td>{{loop.index}}</td> -->
       <td>{{lot.FrameType}}</td>
       <td>
         {{lot.FrameColor}}
@@ -93,7 +92,7 @@
         <form action="/productionLot" method="POST">
           <input type="hidden" name="id" value="{{lot.id}}" />
           <button type="submit" class="btn btn-danger">
-            <i class="bi-file-excel-fill" style="font-size: 30px"></i>
+            <i class="bi-file-excel-fill" style="font-size: 20px"></i>
           </button>
         </form>
       </td>

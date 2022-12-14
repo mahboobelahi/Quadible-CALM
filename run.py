@@ -116,7 +116,7 @@ def ProductionPolicy():
     flash("Orchestrator initializing FASTory Line...")
     res = requests.post('http://192.168.100.100:2009/startProduction')
     print(f'[X] {res.status_code}.????{res.reason}')
-    return redirect(url_for('welcome'))
+    return  (url_for('welcome'))
 
 ###########Product tracking####################
 #Production Lot Status
@@ -194,10 +194,10 @@ def ApiUpdateCapability():
 
 if __name__ == '__main__':
         
-    # strat_workstations=threading.Timer(2,HF.instencateWorkstations)
-    # strat_workstations.daemon=True
-    # strat_workstations.start()
+    strat_workstations=threading.Timer(2,HF.instencateWorkstations)
+    strat_workstations.daemon=True
+    strat_workstations.start()
     
     
     HF.createModels()
-    app.run(host=CONFIG.orchestrator_IP, port=CONFIG.orchestrator_Port,debug=True) #,debug=True
+    app.run(host=CONFIG.orchestrator_IP, port=CONFIG.orchestrator_Port,debug=False) #,debug=True
