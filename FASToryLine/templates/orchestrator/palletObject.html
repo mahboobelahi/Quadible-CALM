@@ -6,7 +6,7 @@
   <div class="col-6">
     <h1>Individual Order Status</h1>
   </div>
-
+{% if Pallet_obj %}
   <div class="col-4">
     <a
       href="/productionLot"
@@ -15,6 +15,7 @@
       >Track Production Lot</a
     >
   </div>
+  {%endif%}
 </div>
 {% if Pallet_obj %}
 <table class="table table-bordered table-hover">
@@ -80,7 +81,7 @@
 <div class="row">
   <div class="col-8">
     <div class="alert alert-danger alert-dismissible fade show" role="alert">
-      <strong><h1>No orders found for any production lot.....</h1></strong>
+      <strong><h3>No orders found for any production lot.....</h3></strong>
       <button
         type="button"
         class="btn-close"

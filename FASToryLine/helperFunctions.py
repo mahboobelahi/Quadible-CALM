@@ -83,7 +83,7 @@ def formated_orders(raw_orders):#current_order,
 def changePen(result):
     try:
         if result.WorkCellID in [1,2,3,4,5,6,7,8]:
-            print(f"[X] Workstation_{result.WorkCellID} does not has pen change service....")
+            print(f"[X] Workstation_{result.WorkCellID} does not has pen change service....:-(")
             return
         capability = result.getCapabilities
         robServiceURL = result.getURLS.get("Robot_service_url")
