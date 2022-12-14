@@ -151,7 +151,7 @@ def fetchPalletObj():
         result= DataBase.PalletObjects.query.all()
         if result:
             Pallet_obj = [res.serialize for res in result]
-            print(result[0].serialize)
+            #print(result[0].serialize)
             return render_template("orchestrator/palletObject.html", Pallet_obj=Pallet_obj,title="Order-Status")
         else:
             return render_template("orchestrator/palletObject.html", Pallet_obj=None,title="Order-Status")
