@@ -111,20 +111,21 @@ class Pallet:
     # retrieve order info
     def info(self):
 
-        pallet_info_p = {
-            "PID":self.get_PID(),"Order_Alias":self.get_Order_Alias(),
-            "Frame_Specifications":[self.get_Frame_specs()['Frame_Specs'][0],
-            self.get_Frame_specs()['Frame_Specs'][1]],
-            "Screen_Specifications":[self.get_Screen_specs()['Screen_Specs'][0], self.get_Screen_specs()['Screen_Specs'][1]],
-            "Keypad_Specifications":[self.get_Keypad_specs()['Keypad_Specs'][0], self.get_Keypad_specs()['Keypad_Specs'][1],self.get_order_status()]
-        }
+        # pallet_info_p = {
+        #     "PID":self.get_PID(),"Order_Alias":self.get_Order_Alias(),
+        #     "Frame_Specifications":[self.get_Frame_specs()['Frame_Specs'][0],
+        #     self.get_Frame_specs()['Frame_Specs'][1]],
+        #     "Screen_Specifications":[self.get_Screen_specs()['Screen_Specs'][0], self.get_Screen_specs()['Screen_Specs'][1]],
+        #     "Keypad_Specifications":[self.get_Keypad_specs()['Keypad_Specs'][0], self.get_Keypad_specs()['Keypad_Specs'][1],self.get_order_status()]
+        # }
+        # pprint(pallet_info_p)
         pallet_info = [
             self.get_PID(),self.get_Order_Alias(),
             self.get_Frame_specs()['Frame_Specs'][0],self.get_Frame_specs()['Frame_Specs'][1],
             self.get_Screen_specs()['Screen_Specs'][0], self.get_Screen_specs()['Screen_Specs'][1],
             self.get_Keypad_specs()['Keypad_Specs'][0], self.get_Keypad_specs()['Keypad_Specs'][1],self.get_order_status()
         ]
-        pprint(pallet_info_p)
+        
         return  pallet_info
 
 
