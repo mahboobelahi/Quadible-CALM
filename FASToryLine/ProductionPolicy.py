@@ -258,15 +258,15 @@ class Workstation:
         """
         # Prepare URL for the environment
 
-        CNV_ser_Url = self.CNV_service_url+f'TransZone{transfer}'
+        CNV_ser_Url = f'{self.CNV_service_url}TransZone{transfer}'
         # Submit POST request to app for getting event body
-        r = requests.post(CNV_ser_Url, json={"destUrl": f"{self.url_self}"})
+        r = requests.post(CNV_ser_Url, json={"destUrl": ""})
         #
         # # Shows response in console
-        print('Service TransZone %s on WS_%d'%(transfer,self.ID), r.status_code, r.reason)
+        print(f'Service TransZone{transfer} on WS_{self.ID}, {r.status_code}, {r.reason}')
 
         if r.status_code==403:
-            print('\nCOMMUNICATION IS LOST\n')
+            print('[X] COMMUNICATION IS LOST ???????')
             pprint(current_pallet.info())
 
     # invoking services on robot
@@ -348,7 +348,7 @@ class Workstation:
             ROB_ser_URL = self.Robot_url+ drawing
             # Submit POST request
             headers = {"Content-Type": "application/json"}
-            r = requests.post(ROB_ser_URL, json={"destUrl": f"{self.url_self}"}, headers=headers)
+            r = requests.post(ROB_ser_URL, json={"destUrl": ""}, headers=headers)#f"{self.url_self}"
         # Shows response in console
         # print('\nService ',drawing, r.status_code, r.reason)
 
@@ -399,9 +399,17 @@ class Workstation:
         ########################MOVE helper#####################
 
     # rlease workstation
-    def release(self,id):
-        if id == 'Z3_Changed':
+    def release(self,event_notif):
+        #only to tackle workstation RFID issue
+        if (event_notif['payload'].get('PalletID') == '-1' and \
+                 event_notif['senderID'] == 'CNV11'):
+            print("[X] AT workstation 11")
+            self.TransZone(145,'')
+            return ''
+        if event_notif['id'] == 'Z3_Changed':
             self.set_Busy(False)
+            print(f'[X] From realse with eventID: {id}')
+            return ''
 
 
     #bypass
@@ -431,13 +439,13 @@ class Workstation:
         check = (current_pallet.get_paperloaded() and
                  not current_pallet.get_order_status() and
                  not self.is_Workstation_Busy())
-
+        print(f'[X] FSK {self.get_capabilities() },{frame_condition},{screen_condition},{keypad_condition}')
         permission = (frame_condition or\
                      screen_condition or\
                      keypad_condition)
         print(f'[X] permission>>>> {permission}')
-        print(f'[X] permission>>>> {check}')
-        print((permission and check))
+        print(f'[X] check>>>> {check}')
+        print(f'[X] permissionANDcheck ({permission and check})')
 
         if (self.get_ID() == 7 or self.get_ID() == 1 or (permission and check)):
 
@@ -445,14 +453,10 @@ class Workstation:
             current_pallet.set_next_zone(2)
             self.set_Busy(True)
 
-            print('',current_pallet.get_PID(),'#####################From_B1###########################')
-            print('\n')
-            pprint(current_pallet.info())
-            print('\n')
-            print('bypass_',self.get_ID(), '', current_pallet.get_PID(), '', current_pallet.get_current_zone(), '',
-                  current_pallet.get_next_zone())
-            print('Transferring from Z%s to Z%s at %d.' % (str(current_pallet.get_current_zone()), str(current_pallet.get_next_zone()), self.ID))
-
+            print(f'[X] {current_pallet.get_PID()},#####################From_B1###########################')
+            print(f"[X] PalletInfo {current_pallet.info()}")
+            print(f'[X] bypass_{self.get_ID()}, {current_pallet.get_PID()}, {current_pallet.get_current_zone()}, {current_pallet.get_next_zone()}')
+            print(f"[X] Transfering pallet at Workstation_{self.ID}from Z{current_pallet.get_current_zone()} to Z{current_pallet.get_next_zone()}")
             threading.Timer(0.1,self.TransZone,args=(str(current_pallet.get_current_zone()) +
                            str(current_pallet.get_next_zone()),current_pallet)).start()
 
@@ -460,23 +464,22 @@ class Workstation:
         else:
             if current_pallet.get_current_zone() == 1:
                 current_pallet.set_next_zone(4)
-                print('', current_pallet.get_PID(), '#####################Original Bypass+1###########################')
+                print(f'[X] {current_pallet.get_PID()}, #####################Original Bypass+1###########################')
             elif current_pallet.get_current_zone() == 4:
                 current_pallet.set_next_zone(5)
-                print('', current_pallet.get_PID(), '#####################Original Bypass+2###########################')
+                print(f'[X] {current_pallet.get_PID()},#####################Original Bypass+2###########################')
             elif current_pallet.get_current_zone() == 3:
                 current_pallet.set_next_zone(5)
-                print('', current_pallet.get_PID(), '#####################Original Bypass+3###########################')
+                print(f'[X] {current_pallet.get_PID()},#####################Original Bypass+3###########################')
             else:
-                print('', current_pallet.get_PID(), '#####################Original Bypass###########################')
+                print(f'[X] {current_pallet.get_PID()},#####################Original Bypass###########################')
                 current_pallet.set_current_zone(1)
                 current_pallet.set_next_zone(4)
 
-            print('',current_pallet.get_PID(),'#####################From_B3###########################')
-            print('bypass_',self.get_ID(), '', current_pallet.get_PID(), '', current_pallet.get_current_zone(), '',
-                  current_pallet.get_next_zone())
-            print(current_pallet.get_PID(),'Transferring from Z%s to Z%s at %d.' % (str(current_pallet.get_current_zone()), str(current_pallet.get_next_zone()), self.ID))
-
+            print(f'[X] {current_pallet.get_PID()},#####################From_B3###########################')
+            print(f'[X] bypass_{self.get_ID()}, {current_pallet.get_PID()}, {current_pallet.get_current_zone()}, {current_pallet.get_next_zone()}')
+            print(f"[X] Transfering pallet at Workstation_{self.ID} from Z{current_pallet.get_current_zone()} to Z{current_pallet.get_next_zone()}")
+            
             threading.Timer(0.2, self.TransZone, args=(str(current_pallet.get_current_zone()) +
                            str(current_pallet.get_next_zone()),current_pallet)).start()
         return ''
@@ -486,7 +489,7 @@ class Workstation:
         global Drawing_update
         Drawing_update = True
         pos_status = True
-        print('\n[X]----------main_transfer_wd_drawing----------\n')
+        print('[X]----------main_transfer_wd_drawing----------')
 
         permission = False
 
@@ -545,11 +548,8 @@ class Workstation:
             return pos_status
 
         else:
-            print('',current_pallet.get_PID(),'#####################From_M1###########################')
-            print(self.get_ID(), '', current_pallet.get_PID(), '', current_pallet.get_current_zone(), '',
-                  current_pallet.get_next_zone())
-            print(current_pallet.get_PID(),'Transferring from Z%s to Z%s at %d.' % (str(current_pallet.get_current_zone()), str(current_pallet.get_next_zone()), self.ID))
-
+            print(f'[X] {current_pallet.get_PID()},#####################From_M1###########################')
+            print(f"[X] Transfering pallet at Workstation_{self.ID}from Z{current_pallet.get_current_zone()} to Z{current_pallet.get_next_zone()}")
             threading.Timer(0.1, self.TransZone, args=(str(current_pallet.get_current_zone()) +
                        str(current_pallet.get_next_zone()), current_pallet)).start()
         return pos_status
@@ -562,44 +562,58 @@ class Workstation:
         Drawing_update = True
         pos_status = True
 
+        
+        
+   
+
         if event_notif['id'] == 'PenChangeEnded':
             print(f"[X] Penchanged event successfull for {event_notif.get('senderID')}")
             return ''
         #accessing palletID by avoiding keyerror
         palletID = event_notif['payload'].get('PalletID',0)
+        print(f"[X] PalletID and ID type: {palletID}---{type(palletID)}")
+        
+        if event_notif['payload'].get('PalletID') == '-1' and \
+            event_notif['id'] != 'PaperLoaded':
 
-        if event_notif['id'] == 'DrawEndExecution' or \
-                event_notif['id'] == 'PenChangeEnded':
-
-            current_pallet =  pallet_objects[self.get_currentPallet().get_PID()]
-
-        elif palletID !=0 :
-                if event_notif['payload'].get('PalletID') in pallet_objects.keys():
-
-                    current_pallet = pallet_objects[palletID]
-                else:
-                    current_pallet = self.get_currentPallet()
-
-        # movement between Zones
-        if  current_pallet.get_current_zone() == 1 or \
-            current_pallet.get_current_zone() == 4 or \
-            current_pallet.get_current_zone() == 5:
-            print('', current_pallet.get_PID(), '#####################_F1_###########################')
-            self.bypass(current_pallet)
+            self.release(event_notif)
+            return ''
         else:
-            if current_pallet.get_current_zone() == 2:
-                current_pallet.set_next_zone(3)
-                print('', current_pallet.get_PID(), '#####################_F2_###########################')
-            elif current_pallet.get_current_zone() == 3:
-                current_pallet.set_next_zone(5)
-                print('', current_pallet.get_PID(), '#####################_F3_###########################')
-            print((pos_status and Drawing_update),'',self.ID,'', current_pallet.get_PID(), '#####################main_transfer_wd_drawing###########################')
-            pos_status = self.main_transfer_wd_drawing(current_pallet)
+            if event_notif['id'] == 'DrawEndExecution' or \
+                    event_notif['id'] == 'PenChangeEnded':
+
+                current_pallet =  pallet_objects[self.get_currentPallet().get_PID()]
+
+            elif palletID !=0 :
+                    if event_notif['payload'].get('PalletID') in pallet_objects.keys():
+                        print(f"[X] if PalletID !=0")
+                        current_pallet = pallet_objects[palletID]
+            else:
+                current_pallet = self.get_currentPallet()
+                print(f"[X] if PalletID == 0>>>{current_pallet}")
+# {"id": "Z1_Changed", "senderID": "CNV09", "payload": {"PalletID": "041A65F1D02580"}}
+#{"id": "Z1_Changed", "senderID": "CNV09", "payload": {"PalletID": "-1"}}
+            # movement between Zones
+            print(current_pallet.info())
+            if  current_pallet.get_current_zone() == 1 or \
+                current_pallet.get_current_zone() == 4 or \
+                current_pallet.get_current_zone() == 5:
+                print(f'[X] {current_pallet.get_PID()}, #####################_F1_###########################')
+                self.bypass(current_pallet)
+            else:
+                if current_pallet.get_current_zone() == 2:
+                    current_pallet.set_next_zone(3)
+                    print(f'[X] {current_pallet.get_PID()},#####################_F2_###########################')
+                elif current_pallet.get_current_zone() == 3:
+                    current_pallet.set_next_zone(5)
+                    print(f'[X] {current_pallet.get_PID()},#####################_F3_###########################')
+                print(f'Drawing condition: {pos_status and Drawing_update}, at {self.ID}, with palletID {current_pallet.get_PID()}, #####################main_transfer_wd_drawing###########################')
+                pos_status = self.main_transfer_wd_drawing(current_pallet)
 
         if pos_status and Drawing_update:
 
             current_pallet.set_current_zone(current_pallet.get_next_zone())
-            print('POS>>>>',self.get_ID(),'',current_pallet.get_PID(),'',current_pallet.get_current_zone(),'',current_pallet.get_next_zone())
+            print(f'[X] POS>>>>,{self.get_ID()}, {current_pallet.get_PID()}, {current_pallet.get_current_zone()}, {current_pallet.get_next_zone()}')
             
     #*******************************************
     #   Flask Application
@@ -664,10 +678,11 @@ class Workstation:
                     print(f'[X] PalletInfo {pallet_objects[PID].info()}')
                     pallet_obj = pallet_objects[PID].info()
                     HF.insertPalletInfo(pallet_obj)
-
+                    count =count+1
+                    print(f"[X] Count>>>> {count}")
             print(f'[X]: Remaining orders: {len(ORDERS)}')
             # master function
-            #self.startprocess(event_notif)
+            self.startprocess(event_notif)
 
             return 'OK'
 
@@ -681,7 +696,7 @@ class Workstation:
                 [ORDERS.append(HF.getAndSetIsFetchOrders(res)) for res in result.FetchOrders if not(res.IsFetched)]   
             except exc.SQLAlchemyError as e:
                 print(f'[XE] {e}')
-            print('app5:_ORDERS_: \n')
+            print('[X] ORDERS_: \n')
             pprint(ORDERS) 
             flash('Production lot ready for process')
             return redirect("http://127.0.0.1:1064/placeorder")
