@@ -358,7 +358,21 @@ class Workstation:
                 current_pallet.get_screen_status() == True and \
                 current_pallet.get_keypad_status() == True:
             current_pallet.update_Order_status(True)
+            #Update Lot and palletObj status in db
+            #####################################################################
+            
+            # Sq.update_piece_status(current_pallet.get_Order_Alias(),current_pallet.get_PID())
+            # qnty = Sq.fetch_order_alias(current_pallet.get_Order_Alias())
+            # print('qnty: ',qnty)
 
+            # print(current_pallet.get_Order_Alias(),type(Sq.fetch_order_qnty(current_pallet.get_Order_Alias()[-1])[0][0]),
+            #       Sq.fetch_order_qnty(current_pallet.get_Order_Alias()[-1])[0][0])
+
+            # if(Sq.fetch_order_qnty(current_pallet.get_Order_Alias()[-1])[0][0] ==
+            #     qnty):
+            #     Sq.update_order_status(current_pallet.get_Order_Alias()[-1])
+                #pallet_objects.pop(current_pallet.get_PID())
+            ##########################################################################################################
         return pos_update
 
     # change pencolor
@@ -647,7 +661,25 @@ class Workstation:
             return render_template("workstations/info.html",
                                     title='Information',
                                     info=DataBase.WorkstationInfo.query.get(self.ID))
+        # fetch ordrs from Database
+        @app.route('/startProduction', methods=['POST'])
+        def startProduction():
+            global ORDERS
 
+            try:
+                result = DataBase.WorkstationInfo.query.filter_by(WorkCellID=7).first()
+                # result= DataBase.Orders.query.filter_by(IsFetched=False).all()
+                [ORDERS.append(HF.getAndSetIsFetchOrders(res)) for res in result.FetchOrders if not(res.IsFetched)]   
+            except exc.SQLAlchemyError as e:
+                print(f'[XE] {e}')
+            print('[X] ORDERS_: \n')
+            pprint(ORDERS) 
+            flash('Production lot ready for process')
+            return redirect("http://127.0.0.1:1064/placeorder")
+        
+        
+        
+        
         @app.route('/events', methods=['POST'])
         def events():
             global pallet_objects
@@ -686,19 +718,6 @@ class Workstation:
 
             return 'OK'
 
-        @app.route('/startProduction', methods=['POST'])
-        def startProduction():
-            global ORDERS
-
-            try:
-                result = DataBase.WorkstationInfo.query.filter_by(WorkCellID=7).first()
-                # result= DataBase.Orders.query.filter_by(IsFetched=False).all()
-                [ORDERS.append(HF.getAndSetIsFetchOrders(res)) for res in result.FetchOrders if not(res.IsFetched)]   
-            except exc.SQLAlchemyError as e:
-                print(f'[XE] {e}')
-            print('[X] ORDERS_: \n')
-            pprint(ORDERS) 
-            flash('Production lot ready for process')
-            return redirect("http://127.0.0.1:1064/placeorder")
+       
 
         app.run('0.0.0.0',port=self.port,debug=False)
