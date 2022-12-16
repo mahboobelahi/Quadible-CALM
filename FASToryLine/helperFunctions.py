@@ -16,7 +16,7 @@ def createModels():
 def insertPalletInfo(pallet_obj):
         mapped_pallet_obj = PalletObjects(
                                     LotNumber=pallet_obj[1],
-                                    PalletID=pallet_obj[0],
+                                    PalletID=f"{pallet_obj[0]}",
                                     FrameType=pallet_obj[2],
                                     FrameColor=pallet_obj[3],
                                     ScreenType=pallet_obj[4],
@@ -158,11 +158,12 @@ def updateCapability(policyID ):
     except exc.SQLAlchemyError as e:
         print(f'[XE] {e}')
 
-def getAndSetIsFetchOrders(res):
+def getAndSetIsFetchOrders():
     try:
-        res.IsFetched =True
+        result= Orders.query.filter_by(IsFetched=False).first()
+        result.IsFetched =True
         db.session.commit() 
-        return res.getOrder
+        return [CONFIG.ORDERS.append(result.getOrder) for i in range(result.Quantity)]
         
     except exc.SQLAlchemyError as e:
         print(f'[XE] {e}')
@@ -173,7 +174,7 @@ def instencateWorkstations():
     CONFIG.wrkCellLoc_Port = 2000
     for i in range(1,13):
         #change capabilities for policies
-        if i in [1,2,3,4,5,6,7,8]:
+        if i in [1,2,3,4,5,6,7,8,10,11,12]:
             continue
         # if i !=7 and  i!=10:
         #     continue

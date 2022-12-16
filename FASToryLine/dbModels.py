@@ -20,7 +20,7 @@ class WorkstationInfo(db.Model):
     #relations
     ProcessedComponents= db.relationship('CompletedComponents',backref='components',lazy=True)#,uselist=False
     LineEvents= db.relationship('FASToryLineEvents',backref='SimEvents',lazy=True)#,uselist=False
-    #S1000Subscriptions =db.relationship('S1000Subscriptions',backref='Subscriptions',lazy=True)#,uselist=False
+    S1000Subscriptions =db.relationship('S1000Subscriptions',backref='Subscriptions',lazy=True)#,uselist=False
     FetchOrders =db.relationship('Orders',backref='Fetch)unProcessedOrders',lazy=True)
     def __repr__(self):
         return f"Workstation('{self.__dict__}')"
@@ -64,25 +64,26 @@ class FASToryLineEvents(db.Model):
     def __repr__(self):
         return f"('Events:{self.SenderID}')"
 
-    @property
-    def serialize(self):
+    @hybrid_property
+    def getEventAsJSON(self):
        """Return object data in easily serializable format"""
        return {
            
            'SenderID': self.SenderID,
            # This is an example how to deal with Many2Many relations
-           'event'  : self.Events.get("event"),
+           'event'  : self.Events,
            'timestamp' : dump_datetime(self.timestamp)
        }
     
-    @property
-    def data(self):
+    @hybrid_property
+    def getEventAsCSV(self):
        """Return object data in easily serializable format"""
-       return [self.SenderID,self.Events.get('event').get('id'),
-                self.Events.get('event').get('payload').get('palletId'),
-                self.Events.get('event').get('payload').get('Recipe'),
-                self.Events.get('event').get('payload').get('PenColor'),
+       return [self.SenderID,self.Events.get('id'),
+                self.Events.get('payload').get('palletId'),
+                self.Events.get('payload').get('Recipe'),
+                self.Events.get('payload').get('PenColor'),
                 dump_datetime(self.timestamp)]
+
 
 class WorkstationCapabilities(db.Model):
     __tablename__ = 'WorkstationCapabilities'
@@ -153,7 +154,7 @@ class PalletObjects(db.Model):
        """Return object data in easily serializable format"""
        return {
            'LotNumber': self.LotNumber,
-           'PalletID': self.PalletID,
+           'PalletID': f"{self.PalletID}",
            'Frame'  : {"type":self.FrameType, "color":self.FrameColor},
            'Screen'  : {"type":self.ScreenType, "color":self.ScreenColor},
            'Keypad'  : {"type":self.KeypadType, "color":self.KeypadColor},
