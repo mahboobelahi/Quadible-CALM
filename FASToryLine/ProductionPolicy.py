@@ -10,8 +10,8 @@ from flask_sqlalchemy import SQLAlchemy
 from FASToryLine import helperFunctions as HF
 from FASToryLine import PalletClass as PC
 
-ORDERS =list() #Holds user orders
-pallet_objects =dict() # Holds mapped pallet objects from user order
+ #Holds user orders
+
 Drawing_update = True
 count =0
 #workstation class
@@ -359,20 +359,13 @@ class Workstation:
                 current_pallet.get_keypad_status() == True:
             current_pallet.update_Order_status(True)
             #Update Lot and palletObj status in db
-            #####################################################################
-            
-            # Sq.update_piece_status(current_pallet.get_Order_Alias(),current_pallet.get_PID())
-            # qnty = Sq.fetch_order_alias(current_pallet.get_Order_Alias())
-            # print('qnty: ',qnty)
-
-            # print(current_pallet.get_Order_Alias(),type(Sq.fetch_order_qnty(current_pallet.get_Order_Alias()[-1])[0][0]),
-            #       Sq.fetch_order_qnty(current_pallet.get_Order_Alias()[-1])[0][0])
-
-            # if(Sq.fetch_order_qnty(current_pallet.get_Order_Alias()[-1])[0][0] ==
-            #     qnty):
-            #     Sq.update_order_status(current_pallet.get_Order_Alias()[-1])
-                #pallet_objects.pop(current_pallet.get_PID())
-            ##########################################################################################################
+            result=db.session.query(DataBase.PalletObjects).get_or_404(current_pallet.get_PID())
+            result.Status = True
+            db.session.commit()
+        if len(CONFIG.ORDERS) == 0:
+            result=db.session.query(DataBase.Orders).filter_by(IsFetched=True).first()
+            result.OrderStatus = True
+            db.session.commit()
         return pos_update
 
     # change pencolor
@@ -547,7 +540,7 @@ class Workstation:
             pos_status = False;
             print('[X] ???????????????',count)
             print(current_pallet.info())
-            pallet_objects.pop(current_pallet.get_PID())
+            CONFIG.pallet_objects.pop(current_pallet.get_PID())
             return pos_status
         
         # drawing command
@@ -576,13 +569,11 @@ class Workstation:
         Drawing_update = True
         pos_status = True
 
-        
-        
-   
-
-        if event_notif['id'] == 'PenChangeEnded':
-            print(f"[X] Penchanged event successfull for {event_notif.get('senderID')}")
-            return ''
+        if event_notif['id'] == 'PenChangeEnded' or\
+            event_notif['id'] == 'PenChangeStarted' or\
+                event_notif['id'] == 'DrawStartExecution':
+                    print(f"[X] {event_notif['id']} event successfull for {event_notif.get('senderID')}")
+                    return ''
         #accessing palletID by avoiding keyerror
         palletID = event_notif['payload'].get('PalletID',0)
         print(f"[X] PalletID and ID type: {palletID}---{type(palletID)}")
@@ -596,17 +587,15 @@ class Workstation:
             if event_notif['id'] == 'DrawEndExecution' or \
                     event_notif['id'] == 'PenChangeEnded':
 
-                current_pallet =  pallet_objects[self.get_currentPallet().get_PID()]
+                current_pallet =  CONFIG.pallet_objects[self.get_currentPallet().get_PID()]
 
             elif palletID !=0 :
-                    if event_notif['payload'].get('PalletID') in pallet_objects.keys():
+                    if event_notif['payload'].get('PalletID') in CONFIG.pallet_objects.keys():
                         print(f"[X] if PalletID !=0")
-                        current_pallet = pallet_objects[palletID]
+                        current_pallet = CONFIG.pallet_objects[palletID]
             else:
                 current_pallet = self.get_currentPallet()
                 print(f"[X] if PalletID == 0>>>{current_pallet}")
-# {"id": "Z1_Changed", "senderID": "CNV09", "payload": {"PalletID": "041A65F1D02580"}}
-#{"id": "Z1_Changed", "senderID": "CNV09", "payload": {"PalletID": "-1"}}
             # movement between Zones
             print(current_pallet.info())
             if  current_pallet.get_current_zone() == 1 or \
@@ -646,15 +635,17 @@ class Workstation:
         
         @app.route('/')
         def welcome():
-
-            context = {"ID": self.ID, "url": self.url_self}
-            return render_template(f'workstations/StWelcome.html',
+            
+            result=DataBase.WorkstationInfo.query.get(self.ID)
+            print(result.LineEvents)
+            context = {"ID": self.ID, "url": self.url_self,"lineEvents":[res.getEventAsCSV for res in result.LineEvents]}
+            print(context)
+            return render_template(f'workstations/Welcome.html',
                                     title=f'Station_{self.ID}',
                                     content=context)
 
         @app.route('/info')  # ,methods=['GET']
         def info():
-            print('??????????test')
             info=DataBase.WorkstationInfo.query.get(self.ID)
 
             print(info.ComponentStatus,info.Capabilities)
@@ -664,60 +655,79 @@ class Workstation:
         # fetch ordrs from Database
         @app.route('/startProduction', methods=['POST'])
         def startProduction():
-            global ORDERS
-
             try:
-                result = DataBase.WorkstationInfo.query.filter_by(WorkCellID=7).first()
-                # result= DataBase.Orders.query.filter_by(IsFetched=False).all()
-                [ORDERS.append(HF.getAndSetIsFetchOrders(res)) for res in result.FetchOrders if not(res.IsFetched)]   
+                HF.getAndSetIsFetchOrders()  
             except exc.SQLAlchemyError as e:
                 print(f'[XE] {e}')
-            print('[X] ORDERS_: \n')
-            pprint(ORDERS) 
+            print('[X] ORDERS_List from ProdLot: \n')
+            pprint(CONFIG.ORDERS) 
             flash('Production lot ready for process')
             return redirect("http://127.0.0.1:1064/placeorder")
         
-        
-        
-        
         @app.route('/events', methods=['POST'])
         def events():
-            global pallet_objects
-            global ORDERS
             global count
-            event_notif = request.json
-            #HF.insertLineEvents(event_notif,self.ID)
-            print(f'[X] New event received: {event_notif}')
-            if len(ORDERS) != 0:
-                if (
-                    event_notif.get('id') == 'Z1_Changed' and\
-                    event_notif.get('senderID') == 'CNV09' and\
-                    event_notif['payload'].get('PalletID','-1')!= '-1' and\
-                    event_notif['payload'].get('PalletID') not in pallet_objects
-                ):
-                    temp = ORDERS.pop(0)
-                    
-                    """
-                        type:tuple-4
-                        0:{'LotNumber': 1, 'timestamp': ['2022-09-17', '22:03:25'], 'Quantity': 1, 'Prodpolicy': 4}
-                        1:{'Frame_Specs': ['Draw2', 'RED']}
-                        2:{'Screen_Specs': ['Draw8', 'GREEN']}
-                        3:{'Keypad_Specs': ['Draw5', 'BLUE']}
-                    """
-                    PID = event_notif.get('payload').get('PalletID')
 
-                    pallet_objects[PID] = PC.Pallet(PID, temp[0].get("LotNumber"), temp[1], temp[2], temp[3])
-                    print(f'[X] PalletInfo {pallet_objects[PID].info()}')
-                    pallet_obj = pallet_objects[PID].info()
-                    HF.insertPalletInfo(pallet_obj)
-                    count =count+1
-                    print(f"[X] Count>>>> {count}")
-            print(f'[X]: Remaining orders: {len(ORDERS)}')
+            try:
+                event_notif = request.json
+                HF.insertLineEvents(event_notif,self.ID)
+                print(f'[X] New event received: {event_notif}')
+                if len(CONFIG.ORDERS) != 0:
+                    
+                    if (
+                        event_notif.get('id') == 'Z1_Changed' and\
+                        event_notif.get('senderID') == 'CNV09' and\
+                        event_notif['payload'].get('PalletID','-1')!= '-1' and\
+                        event_notif['payload'].get('PalletID') not in CONFIG.pallet_objects
+                    ):
+                        temp = CONFIG.ORDERS.pop(0)
+                        
+                        """
+                            type:tuple-4
+                            0:{'LotNumber': 1, 'timestamp': ['2022-09-17', '22:03:25'], 'Quantity': 1, 'Prodpolicy': 4}
+                            1:{'Frame_Specs': ['Draw2', 'RED']}
+                            2:{'Screen_Specs': ['Draw8', 'GREEN']}
+                            3:{'Keypad_Specs': ['Draw5', 'BLUE']}
+                        """
+                        PID = event_notif.get('payload').get('PalletID')
+
+                        CONFIG.pallet_objects[PID] = PC.Pallet(PID, temp[0].get("LotNumber"), temp[1], temp[2], temp[3])
+                        print(f'[X] PalletInfo {CONFIG.pallet_objects[PID].info()}')
+                        pallet_obj = CONFIG.pallet_objects[PID].info()
+                        HF.insertPalletInfo(pallet_obj)
+                        count =count+1
+                        print(f"[X] Count>>>> {count}")
+                else:
+                    try:
+                        #handle none type attri
+                        HF.getAndSetIsFetchOrders()
+                        print(f'[X] Fetching Next Order {CONFIG.ORDERS}')
+                    except exc.SQLAlchemyError as e:
+                        print(f'[XE] {e}')
+
+            except ValueError:  # includes simplejson.decoder.JSONDecodeError
+                    print('[X] Decoding JSON has failed')
+            except exc.SQLAlchemyError as e:
+                    print(f'[XE] {e}')
+
+            print(f'[X]: Remaining orders: {len(CONFIG.ORDERS)}')
             # master function
             self.startprocess(event_notif)
 
             return 'OK'
-
-       
-
+        ################# API ##############
+        @app.route('/api-fetchNextOrder', methods=['POST'])
+        def apiFetchNextOrder():
+            
+            try:
+                result = DataBase.WorkstationInfo.query.filter_by(WorkCellID=7).first()
+                # result= DataBase.Orders.query.filter_by(IsFetched=False).all()
+                [CONFIG.ORDERS.append(HF.getAndSetIsFetchOrders(res)) for res in result.FetchOrders if not(res.IsFetched)]   
+                print('[X-API] ORDERS_: \n')
+                pprint(CONFIG.ORDERS) 
+                return jsonify(Response=200)
+            except exc.SQLAlchemyError as e:
+                print(f'[X-API] {e}')
+                return jsonify(Response=e)
+    
         app.run('0.0.0.0',port=self.port,debug=False)
