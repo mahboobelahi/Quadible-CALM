@@ -70,49 +70,49 @@
     </div>
   </div>
 </nav>
-<!-- CALM Old SDK
 
-    <script src="https://quadsharedfiles.blob.core.windows.net/sdks/CALMBehavioralAuthSDK.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/crypto-js@4.0.0/crypto-js.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/crypto-js@4.0.0/hmac-sha1.js"></script>
-    <script>
-      const userId = "mahboob"; //samuel
-      const CLIENT_ID = "f1240379-15f4-a64c-a1d5-b3eb181220e6";
-      const CLIENT_SECRET = "243c12d3-abff-3d53-3f9e-171283e85fbe";
-      const sdk = new BehavioralAuthSDK({
-        apiKey: "5f4e2597c51994d05394eda01482df9386b4639c",
-        serviceUrl: "https://dev.behavauth.com",
-        clientId: CLIENT_ID,
-        clientSecret: CLIENT_SECRET,
-        userId,
-        idToken: CryptoJS.HmacSHA1(
+  <!-- CALM SDK integration -->
+      <!-- <script src="https://quadsharedfiles.blob.core.windows.net/sdks/CALMBehavioralAuthSDK.min.js"></script>
+      <script src="https://cdn.jsdelivr.net/npm/crypto-js@4.0.0/crypto-js.js"></script>
+      <script src="https://cdn.jsdelivr.net/npm/crypto-js@4.0.0/hmac-sha1.js"></script>
+      <script>
+        const userId = "mahboob"; //samuel
+        const CLIENT_ID = "f1240379-15f4-a64c-a1d5-b3eb181220e6";
+        const CLIENT_SECRET = "243c12d3-abff-3d53-3f9e-171283e85fbe";
+        const sdk = new BehavioralAuthSDK({
+          apiKey: "5f4e2597c51994d05394eda01482df9386b4639c",
+          serviceUrl: "https://dev.behavauth.com",
+          clientId: CLIENT_ID,
+          clientSecret: CLIENT_SECRET,
           userId,
-          "2bb272a1-9cc6-2e62-844b-732de4ac1d1e"
-        ).toString(CryptoJS.enc.Hex),
-        lockScreenOnAuthLost: true,
-        lockScreenOnFaceLost: false,
-        useWebcam: true,
-        useLocation: true,
-        debug: true,
-        verbose: true,
-      });
+          idToken: CryptoJS.HmacSHA1(
+            userId,
+            "2bb272a1-9cc6-2e62-844b-732de4ac1d1e"
+          ).toString(CryptoJS.enc.Hex),
+          lockScreenOnAuthLost: true,
+          lockScreenOnFaceLost: true,
+          useWebcam: true,
+          useLocation: true,
+          debug: true,
+          verbose: true,
+        });
 
-      // sdk.onAny((event, data) => console.log(event, data));
+        // sdk.onAny((event, data) => console.log(event, data));
 
-      sdk.setUserDisplayName("Mahboob-TAU");
+        sdk.setUserDisplayName("Mahboob-TAU");
 
-      // sdk.clearSession();
-      sdk.start();
+        // sdk.clearSession();
+        sdk.start();
 
-      sdk.on("error", (e) => console.log("uncaught error", e));
+        sdk.on("error", (e) => console.log("uncaught error", e));
 
-      function q(v) {
-        try {
-          return location.href.match(new RegExp(`${v}=([^&]+)`))[1];
-        } catch (e) {
-          return null;
+        function q(v) {
+          try {
+            return location.href.match(new RegExp(`${v}=([^&]+)`))[1];
+          } catch (e) {
+            return null;
+          }
         }
-      }
-    </script> -->
-    <!-- End-CALM Old SDK -->
+      </script> -->
+  <!-- End-CALM SDK integration -->
 {% endblock %}

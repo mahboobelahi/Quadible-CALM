@@ -66,7 +66,7 @@
       <td>
         {{lot.timestamp.0}} {{lot.timestamp.1}}
         <form action="/palletObj" method="POST">
-          <input type="hidden" name="palletRFIDtag" value="{{lot.PalletID}}" />
+          <input type="hidden" name="palletRFIDtag" value="{{lot.id}}" />
           <button type="submit" class="btn btn-danger">
             <i class="bi-file-excel-fill" style="font-size: 20px"></i>
           </button>

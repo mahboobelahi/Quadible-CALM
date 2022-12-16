@@ -1,15 +1,18 @@
 {% extends 'base.html' %} {% block head %}
 <title style="color: orchid">Order</title>
 {% endblock %} {% block body %}
-<div class="row">
-  <div class="col-6">
-<h1 style="color: orchid; text-align: justify">Place your Order here.</h1>
-  </div>
-  
-  <div class="col-4">
-  <a href="/productionLot" style="margin-top: 10px;" class="btn btn-outline-info btn-lg">Track Production Lot</a>
-  </div>
+<div class="row ">
+    <div class="col-6">
+      <h4 style="color: orchid; text-align: justify">Place your Order here.</h4>
+    </div>
+    
+    <div class="col-6 hstack gap-1">
+        <a href="/productionLot" style="margin-top: 3px;  font-size: 0.75em;" class="btn btn-outline-danger btn-lg">Track Production Lot</a>
+        <div class="vr" style="margin-top: 3px;""></div>
+        <a href="/palletObj" style="margin-top: 3px;  font-size: 0.75em;" class="btn btn-outline-danger btn-lg">Track Orders in Lot</a>  
+    </div>
 </div>
+
 
 <hr />
 <!--to upload data filling form to server app-->
@@ -106,8 +109,11 @@
         <label class="form-check-label" for="Keypad3">Keypad 3 </label>
       </div>
       <hr />
-      <input type="number" min="1" name="quantity" value="1" />
-      <input class="btn btn-outline-primary btn-sm"type="submit" name="order" value="Confirm Order"/>
+      <div class="hstack gap-1">
+        <input type="number" min="1" name="quantity" value="1" />
+        <div class=" vr"></div>
+        <input class="btn btn-outline-primary btn-sm"type="submit" name="order" value="Confirm Order"/>
+      </div>
     </form>
   </div>
   
@@ -125,13 +131,13 @@
             <input class="form-check-input" type="radio" name="productionPolicy" id="Error" value=4> With Errored Workstations ProductionPolicy<br>
 
             <br>
-            <div class="hstack gap-3">
-            <input class="btn btn-outline-success btn-sm" type="submit" name="prodectionPolicy" value="Start Production"/>
+            <div class="hstack gap-1">
+            <input style="font-size: 0.75em;" class="btn btn-outline-success btn-sm" type="submit" name="prodectionPolicy" value="Start Production"/>
             <!-- <div><a href="http://127.0.0.1:1064/production-policy" class="btn btn-outline-success btn-sm">Start Production</a></div> -->
             <div class="vr"></div>
-            <div><a href="/" class="btn btn-outline-info btn-sm">Go to main page</a></div>
+            <div><a href="/" style="font-size: 0.75em;" class="btn btn-outline-info btn-sm">Go to main page</a></div>
             <div class="vr"></div>
-            <div><a href="/updateCapability" class="btn btn-outline-warning btn-sm">Update Cell Capability</a></div>
+            <div><a href="/updateCapability" style="font-size: 0.75em;" class="btn btn-outline-warning btn-sm">Update Cell Capability</a></div>
         
           </form>
     </div>

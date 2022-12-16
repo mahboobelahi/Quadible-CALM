@@ -4,14 +4,14 @@
 
 <div class="row">
   <div class="col-6">
-    <h1>Production lot status</h1>
+    <h3>Production lot status</h3>
   </div>
   {% if ProductionLot %}
   <div class="col-4">
     <a
       href="/palletObj"
-      style="margin-top: 10px"
-      class="btn btn-outline-primary btn-lg"
+      style="margin-top: 4px"
+      class="btn btn-outline-primary btn-sm"
       >Track Orders in Lot
     </a>
   </div>
@@ -95,6 +95,7 @@
             <i class="bi-file-excel-fill" style="font-size: 20px"></i>
           </button>
         </form>
+        
       </td>
     </tr>
     {% endfor %}
@@ -116,10 +117,11 @@
   <div class="col-4">
     <a
       href="/placeorder"
-      style="margin-top: 10px"
+      style="margin-top: 4px"
       class="btn btn-outline-primary btn-lg"
       >Want to place orders?
     </a>
   </div>
 </div>
+
 {% endif %} {% endblock %}
