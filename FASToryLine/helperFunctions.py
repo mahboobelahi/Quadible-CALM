@@ -109,7 +109,9 @@ def changePen(result):
                 else:
                     print(f'[X] Workstation_{result.WorkCellID} has changed Pencolor to {capability[0]}, ({res.status_code},{res.reason})' )
                 return
-        print(f"[X] Workstation_{result.WorkCellID} already up to date....:-)")
+            print(f"[X] Workstation_{result.WorkCellID} already up to date....:-)")
+        else:
+            print(f"[X] Workstation_{result.WorkCellID} capabilities are {capability}....:-(")
     except requests.exceptions.RequestException as err:
         print(f"[X-Err] for Workstation_{result.WorkCellID} OOps: {err}" ) 
 
@@ -141,7 +143,7 @@ def updateCapability(policyID ):
             res.ProdPolicy =policyID 
         db.session.commit() 
         #dynamc input query with "with_entities"
-        policyID=4 #test id remove this line during final testing
+        #policyID=4 #test id remove this line during final testing
         WS_capabilities=WorkstationCapabilities.query.with_entities(
                         eval(f'{WorkstationCapabilities.__tablename__}.{CONFIG.ProdIDtoCapability[policyID]}')
                         ).all()        
