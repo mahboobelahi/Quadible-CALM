@@ -635,14 +635,18 @@ class Workstation:
         
         @app.route('/')
         def welcome():
-            
-            result=DataBase.WorkstationInfo.query.get(self.ID)
-            print(result.LineEvents)
-            context = {"ID": self.ID, "url": self.url_self,"lineEvents":[res.getEventAsCSV for res in result.LineEvents]}
-            print(context)
+            # result=DataBase.WorkstationInfo.query.get(self.ID)
+            # print(result.LineEvents)
+            # context = {"ID": self.ID, "url": self.url_self,"lineEvents":[res.getEventAsCSV for res in result.LineEvents]}
+            # print(context)
+            page = request.args.get('page',1,type=int)
+            lineEvents= DataBase.FASToryLineEvents.query.filter_by(Fkey=self.ID).order_by(
+               DataBase.FASToryLineEvents.id.desc()).paginate(per_page=10, page=page )
+            print(f"""[X] {lineEvents.items}, {lineEvents.total}""")
             return render_template(f'workstations/Welcome.html',
                                     title=f'Station_{self.ID}',
-                                    content=context)
+                                    ID=self.ID,url= self.url_self,
+                                    lineEvents=lineEvents)
 
         @app.route('/info')  # ,methods=['GET']
         def info():

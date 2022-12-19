@@ -1,12 +1,85 @@
 {% extends "wrk_cell_base.html" %} {% block head %} {% endblock %} {% block body
 %}
+
 <div class="row">
-  <div class="col-xs-12">
+    <div class="col-6">
     <p>
-      Welcom! from FASTory Workstation_{{content.ID}} <br />
-      Listening at := {{content.url}}
+     <h5> Welcom! from FASTory Workstation_{{ID}}</h5> 
+      <h5>Listening at := {{url}}</h5>
     </p>
   </div>
+    <div class="col-4">
+    <a
+      href="/info"
+      style="margin-top: 2px"
+      class="btn btn-outline-primary btn-sm"
+      >Work Cell Info
+    </a>
+  </div>
+</div>
+
+
+<div class="row">
+  <div class="col-8">
+  {% if (lineEvents.total)!=0 %}
+  {% set PenColor = '' %}    
+  <h1>Events from Workstation_{{ID}}</h1>
+        <table class="table table-bordered  text-nowrap">
+          
+          <th> Sr. </th> 
+          <th> SenderID </th> 
+          <th> Event </th>  
+          <th> Drawing </th> 
+          <th> PenColor</th>
+          <th> PalletID </th>
+          <th> Time </th>
+          {#% set count = namespace(value=0) %#}
+          {% for event in lineEvents.items %}
+          {% set e = event.getEventAsCSV%}
+          {#% set count.value = count.value + 1 %#}
+          {% if e[3]==1 %}
+          {% set PenColor='RED' %}
+            
+          {% elif e[3]==2 %}
+            {% set PenColor='GREEN' %}
+          {% else %}
+            {% set PenColor='BLUE' %}
+          {% endif %}    
+          <tr> 
+                  {#<td> {{loop.index}}{ count.value }#}{#{ event.id } </td>#}
+                  <td> {{loop.index}}</td>
+                  <td> {{ e[0] }} </td>
+                  <td> {{ e[1] }} </td>
+                  <td> {{ e[2] }} </td>
+                  <td> {{PenColor}} </td> 
+                  <td> {{ e[4] }} </td> 
+                  <td> {{ e[5][0] }},{{e[5][1]}} </td>
+                          
+              </tr>  
+          {% endfor %}  
+      </table>
+
+      {# Pagination #}
+      {% for page_num in lineEvents.iter_pages(left_edge=1, right_edge=1, left_current=1, right_current=2) %}
+          {% if page_num %}
+            {% if lineEvents.page == page_num %}
+              <a class="btn btn-info mb-4" href="{{ url_for('welcome', page=page_num) }}">{{ page_num }}</a>
+            {% else %}
+              <a class="btn btn-outline-info mb-4" href="{{ url_for('welcome', page=page_num) }}">{{ page_num }}</a>
+            {% endif %}
+          {% else %}
+            ...
+          {% endif %}
+      {% endfor %}
+  {% else %}
+          <div class="alert alert-danger alert-dismissible fade show" role="alert">
+              <strong>Yet no events recorded for Workstation_{{ID}}.</strong>
+              <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+          </div>
+
+    </div>
+  {% endif %}
+
 </div>
 
 {% endblock body %}
