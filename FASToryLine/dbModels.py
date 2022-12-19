@@ -67,9 +67,14 @@ class FASToryLineEvents(db.Model):
     @hybrid_property
     def getEventAsJSON(self):
        """Return object data in easily serializable format"""
+                #        "eventID":self.Events.get('id'), "Sender":self.SenderID,
+                # "PalletID":self.Events.get('payload').get('palletId'),
+                # "Drawing":self.Events.get('payload').get('Recipe'),
+                # self.Events.get('payload').get('PenColor'),
+                # dump_datetime(self.timestamp)
        return {
            
-           'SenderID': self.SenderID,
+           'SenderID': self.id,
            # This is an example how to deal with Many2Many relations
            'event'  : self.Events,
            'timestamp' : dump_datetime(self.timestamp)
@@ -78,10 +83,10 @@ class FASToryLineEvents(db.Model):
     @hybrid_property
     def getEventAsCSV(self):
        """Return object data in easily serializable format"""
-       return [self.SenderID,self.Events.get('id'),
-                self.Events.get('payload').get('palletId'),
+       return [ self.SenderID,self.Events.get('id'),
                 self.Events.get('payload').get('Recipe'),
                 self.Events.get('payload').get('PenColor'),
+                self.Events.get('payload').get('palletId'),
                 dump_datetime(self.timestamp)]
 
 
