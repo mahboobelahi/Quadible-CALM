@@ -146,7 +146,21 @@ class Workstation:
     # Subscription section
     # *****************************************
 
-    # Conveyor event subscriptions
+    # Conveyor event subscriptions handlers
+
+    def CNV_event_Unsubscriptions(self, zone_name):
+        if (self.ID == 1 or self.ID == 7) and zone_name == 4:
+            print(f'[X] Worksation_{self.ID}, has no bypass CNV')
+            pass
+
+        else:
+            CNV_RTU_Url_s = f'http://192.168.{str(self.ID)}.2/rest/events/Z{str(zone_name)}_Changed/notifs'
+            try:
+                r = requests.delete(CNV_RTU_Url_s)
+                if r.status_code == 404:
+                    print(f"No subscriptions found for Workstation_{self.ID}:{CNV_RTU_Url_s.split('/')[-2]} CNV event")
+            except requests.exceptions.RequestException as err:
+                print("[X] OOps: Something Else", err)
 
     def CNV_event_subscriptions(self, zone_name):
         """
@@ -160,33 +174,79 @@ class Workstation:
         # Prepare URL and body for the environment
 
         if (self.ID == 1 or self.ID == 7) and zone_name == 4:
-            print('WkC_1:_Worksation_%d' % self.ID, 'has no Service for Zone4')
+            print(f'[X] Worksation_{self.ID}, has no bypass CNV')
             pass
 
         else:
             CNV_RTU_Url_s = f'http://192.168.{str(self.ID)}.2/rest/events/Z{str(zone_name)}_Changed/notifs'
 
             # application URl
-            body = {"destUrl": self.url_self+ '/events'}
-            
+            body = {"destUrl": f"{self.url_self}/events"}
+            id=''
+            status_code=0
             try:
-                r = requests.post(CNV_RTU_Url_s, json=body)
-                # print(f'[X] CNV Zone{zone_name} event subscriptions for WK_{self.ID}, {r.reason}')
-                
-                event_url= DataBase.S1000Subscriptions(
-                                Event_url = CNV_RTU_Url_s,
-                                Destination_url = self.url_self,
-                                Fkey = self.ID)
 
-                db.session.add(event_url)
-                db.session.commit()
+                isSubscribed,eventId = HF.checkSubscription(CNV_RTU_Url_s,body)
 
+                if isSubscribed == False and eventId == None:
+                    print(f"[X] Workstation_{self.ID}' is subscribing for CNV_Zone {CNV_RTU_Url_s.split('/')[-2]} event :-(")
+                    r = requests.post(CNV_RTU_Url_s, json=body)
+                    # print(f'[X] CNV Zone{zone_name} event subscriptions for WK_{self.ID}, {r.reason}')
+                    status_code = r.status_code
+                    if r.status_code == 404:
+                        id = f"{self.ID}:{CNV_RTU_Url_s.split('/')[-2]}:{r.reason}:{r.status_code}"
+                        
+                    else:
+                        id = r.json().get("id")
+                    # print('[X] ',db.session.query(DataBase.S1000Subscriptions).filter_by(Event_url=CNV_RTU_Url_s).scalar())
+                    # print('[X] ',db.session.query(DataBase.S1000Subscriptions).filter_by(Event_url=CNV_RTU_Url_s).scalar() is not None)
+                    # print('[X] ',db.session.query(DataBase.S1000Subscriptions).filter_by(Event_url=CNV_RTU_Url_s).scalar() is None)
+                    if (db.session.query(DataBase.S1000Subscriptions).filter_by(Event_url=CNV_RTU_Url_s).scalar() is None):
+                        event_url= DataBase.S1000Subscriptions(
+                            Event_url = CNV_RTU_Url_s,
+                            Destination_url = self.url_self,
+                            eventID = id,
+                            Fkey = self.ID)
+
+                        db.session.add(event_url)
+                        db.session.commit()
+                        return 
+
+                    else:
+                        print(f"[X] Prevous subscription for CNV {CNV_RTU_Url_s.split('/')[-2]} event for Workstation_{self.ID} wae deleted :-)")
+                        print(f"[X] Updating subscriptions......")
+                        #r = requests.post(CNV_RTU_Url_s, json=body)
+                        if (DataBase.S1000Subscriptions.query.filter_by(Event_url=CNV_RTU_Url_s).first().eventID !=\
+                            r.json().get("id")) and status_code!=404:
+                            result=db.session.query(DataBase.S1000Subscriptions).filter_by(Event_url=CNV_RTU_Url_s).first()
+                            result.eventID = id
+                            db.session.commit()
+                            return
+                        else:
+                            print(f"[X] Subscriptions is already Uptodate ......")
+                if isSubscribed == True and eventId != None:
+                    print(f"[X] Workstation_{self.ID} already has subscription for CNV_Zone {CNV_RTU_Url_s.split('/')[-2]} event:-)")
+                    return 
             except requests.exceptions.RequestException as err:
                 print("[X] OOps: Something Else", err)                   
             except exc.IntegrityError as err:
-                print("[X] OOps: already exists", err)
+                print("[X] OOps:", err)
 
-    # Robot event subscriptions
+    # Robot event subscriptions handlers
+    
+    def ROB_event_Unsubscriptions(self, event_name):
+
+        if self.ID == 1 or self.ID==7:
+            pass
+        else:
+            ROB_RTU_Url_s = f'http://192.168.{str(self.ID)}.1/rest/events/{event_name}/notifs'
+            try:
+                r = requests.delete(ROB_RTU_Url_s)
+                if r.status_code == 404:
+                    print(f"No subscriptions found for Workstation_{self.ID}:{ROB_RTU_Url_s.split('/')[-2]} robot event")
+            except requests.exceptions.RequestException as err:
+                print("[X] OOps: Something Else", err)
+
     def ROB_event_subscriptions(self, event_name):
         """
         this method subscribe a workstation to the event for all zones of conveyor
@@ -197,25 +257,55 @@ class Workstation:
         """
 
         # Prepare URL and body for the environment
-        if self.ID == 1:
-            pass
-        elif self.ID == 7:
+        if self.ID == 1 or self.ID==7:
             pass
         else:
             ROB_RTU_Url_s = f'http://192.168.{str(self.ID)}.1/rest/events/{event_name}/notifs'
             # application URl
             body = {"destUrl": self.url_self+ '/events'}
+            id=''
+            status_code = 0
             try:
-                r = requests.post(ROB_RTU_Url_s, json=body)
-                #print(f'[X] Robot {event_name} event subscriptions for WK_{self.ID}, {r.reason}')
-                event_url= DataBase.S1000Subscriptions(
-                                Event_url = ROB_RTU_Url_s,
-                                Destination_url = self.url_self,
-                                Fkey = self.ID)
+                isSubscribed,eventId = HF.checkSubscription(ROB_RTU_Url_s,body)
 
-                db.session.add(event_url)
-                db.session.commit()
+                if isSubscribed == False and eventId == None:
+                    print(f"[X] Workstation_{self.ID}' is subscribing for ROB {ROB_RTU_Url_s.split('/')[-2]} event :-(")
+                    r = requests.post(ROB_RTU_Url_s, json=body)
+                    # print(f'[X] ROB Zone{zone_name} event subscriptions for WK_{self.ID}, {r.reason}')
+                    
+                    status_code = r.status_code
+                    if r.status_code == 404:
+                        id = f"{self.ID}:{ROB_RTU_Url_s.split('/')[-2]}:{r.reason}:{r.status_code}"
+                    else:
+                        id = r.json().get("id")
+                    if db.session.query(DataBase.S1000Subscriptions).filter_by(Event_url=ROB_RTU_Url_s).scalar() is None:
+                        event_url= DataBase.S1000Subscriptions(
+                                        Event_url = ROB_RTU_Url_s,
+                                        Destination_url = self.url_self,
+                                        eventID = id,
+                                        Fkey = self.ID)
 
+                        db.session.add(event_url)
+                        db.session.commit()
+                        return 
+                    else:
+                        print(f"[X] Prevous subscription for ROB {ROB_RTU_Url_s.split('/')[-2]} event for Workstation_{self.ID} was deleted :-)")
+                        print(f"[X] Updating subscriptions......")
+                        #r = requests.post(ROB_RTU_Url_s, json=body)
+                        if (DataBase.S1000Subscriptions.query.filter_by(Event_url=ROB_RTU_Url_s).first().eventID !=\
+                            r.json().get("id"))  and status_code!=404:
+                            result=db.session.query(DataBase.S1000Subscriptions).filter_by(Event_url=ROB_RTU_Url_s).first()
+                            result.eventID = id
+                            db.session.commit()
+                            return
+                        else:
+                            print(f"[X] Subscriptions is already Uptodate ......")
+                            return
+                elif isSubscribed == True and eventId != None:
+                    print(f"[X] Workstation_{self.ID} already has subscription for ROB {ROB_RTU_Url_s.split('/')[-2]} event:-)")
+                    return 
+                else:
+                    print(f"[X] In else block")
             except requests.exceptions.RequestException as err:
                 print("[X] OOps: Something Else", err)
             except exc.IntegrityError as err:
@@ -349,10 +439,6 @@ class Workstation:
             # Submit POST request
             headers = {"Content-Type": "application/json"}
             r = requests.post(ROB_ser_URL, json={"destUrl": ""}, headers=headers)#f"{self.url_self}"
-        # Shows response in console
-        # print('\nService ',drawing, r.status_code, r.reason)
-
-        # check all parts are printed
 
         if current_pallet.get_frame_status() == True and \
                 current_pallet.get_screen_status() == True and \
@@ -639,6 +725,8 @@ class Workstation:
             # print(result.LineEvents)
             # context = {"ID": self.ID, "url": self.url_self,"lineEvents":[res.getEventAsCSV for res in result.LineEvents]}
             # print(context)
+            #For displaying workcell events on UI with pagination
+
             page = request.args.get('page',1,type=int)
             lineEvents= DataBase.FASToryLineEvents.query.filter_by(Fkey=self.ID).order_by(
                DataBase.FASToryLineEvents.id.desc()).paginate(per_page=10, page=page )
@@ -656,6 +744,7 @@ class Workstation:
             return render_template("workstations/info.html",
                                     title='Information',
                                     info=DataBase.WorkstationInfo.query.get(self.ID))
+        
         # fetch ordrs from Database
         @app.route('/startProduction', methods=['POST'])
         def startProduction():
@@ -666,8 +755,10 @@ class Workstation:
             print('[X] ORDERS_List from ProdLot: \n')
             pprint(CONFIG.ORDERS) 
             flash('Production lot ready for process')
-            return redirect("http://127.0.0.1:1064/placeorder")
-        
+            return redirect("http://127.0.0.1:1064/placeorder")       
+
+        #events from line receives here
+        #vital for FASTory service orchestration
         @app.route('/events', methods=['POST'])
         def events():
             global count
@@ -719,6 +810,7 @@ class Workstation:
             self.startprocess(event_notif)
 
             return 'OK'
+        
         ################# API ##############
         @app.route('/api-fetchNextOrder', methods=['POST'])
         def apiFetchNextOrder():
@@ -733,5 +825,5 @@ class Workstation:
             except exc.SQLAlchemyError as e:
                 print(f'[X-API] {e}')
                 return jsonify(Response=e)
-    
+
         app.run('0.0.0.0',port=self.port,debug=False)
