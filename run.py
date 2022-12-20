@@ -1,10 +1,9 @@
-import requests,threading
-from flask import Flask, flash, request,render_template
+import threading
+from flask import flash, request,render_template
 from FASToryLine import app
 from FASToryLine import dbModels as DataBase
 from FASToryLine import configurations as CONFIG
 from FASToryLine import helperFunctions as HF
-from pprint import pprint as P
 
 #welcom and about page
 @app.route('/')
@@ -14,7 +13,6 @@ def welcome():
 
         flash('Welcome to FASTory Line Orchestrator!')
         return render_template("orchestrator/welcom.html",title="Home")
-
 
 @app.route('/about')
 def about():
@@ -27,13 +25,12 @@ def workstations():
         workstations = DataBase.WorkstationInfo.query.all()
         return render_template('orchestrator/workCell.html',title='Worksations',content=workstations)
 
-
-
 if __name__ == '__main__':
         
     strat_workstations=threading.Timer(2,HF.instencateWorkstations)
     strat_workstations.daemon=True
     strat_workstations.start()
-    
+
     HF.createModels()
+
     app.run(host=CONFIG.orchestrator_IP, port=CONFIG.orchestrator_Port,debug=False) #,debug=True
