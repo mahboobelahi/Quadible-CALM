@@ -41,9 +41,10 @@ class WorkstationInfo(db.Model):
 
 class S1000Subscriptions(db.Model):
     __tablename__ = 'EventsSubscriptions'
-    id = db.Column(db.Integer, primary_key=True)
+    id = db.Column(db.Integer,primary_key=True)
     Event_url = db.Column(db.String(255), unique=True, nullable=False)
     Destination_url = db.Column(db.String(255), unique=False, nullable=False)
+    eventID = db.Column(db.String(255), unique=True, nullable=False)
     Fkey = db.Column(db.Integer, db.ForeignKey('workstationInfo.id'),nullable=False)
 
     @hybrid_property
@@ -52,6 +53,10 @@ class S1000Subscriptions(db.Model):
     @hybrid_property
     def getUnSubsEventURLS(self):
         return self.Event_url.split('/notifs')[0]
+    
+    @hybrid_property
+    def eventInfoURL(self):
+        return f"{self.Event_url}eventID"
 
 class FASToryLineEvents(db.Model):
     __tablename__ = 'FASToryLineEvents'
