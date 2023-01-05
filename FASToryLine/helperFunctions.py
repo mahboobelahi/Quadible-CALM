@@ -176,57 +176,33 @@ def instencateWorkstations():
         CONFIG .WS_obj_list.append(temp_obj)
     print(f"AccessOrchestrtor here: http://{get_local_ip()}:1064")
     #CNV and Robot events subscriptions
-    #subscribeToFASToryEvents(CONFIG.WS_obj_list)
+    subscribeToFASToryEvents(CONFIG.WS_obj_list)
     return ""
 
 ################ related to line sub-Unsub-scriptions################
-def subscribeToFASToryEvents(WS_obj_list,Unsub=True):
-    if Unsub:
-        for obj in WS_obj_list:
-                if obj.get_ID() == 1:continue
-                print(f'[X] UnSubscription for Workstation_{obj.get_ID()}' )
-                # if obj.get_ID() == 7:
-                #     print("")
-                for zone_name in range(1, 6):
-                    if zone_name == 5:
-                        continue
-                    obj.CNV_event_Unsubscriptions(zone_name)
+def subscribeToFASToryEvents(WS_obj_list):
+    for obj in WS_obj_list:
+        if obj.get_ID() == 1:continue
+        print(f'[X] Subscription for Workstation_{obj.get_ID()}' )
+        # if obj.get_ID() == 7:
+        #     print("")
+        for zone_name in range(1, 6):
+            if zone_name == 5:
+                continue
+            obj.CNV_event_subscriptions(zone_name,Unsub=False)
 
-                if obj.get_ID() == 1:
-                    obj.ROB_event_Unsubscriptions('PaperLoaded')
-                    obj.ROB_event_Unsubscriptions('PaperUnloaded')
-                elif obj.get_ID() == 7:
-                    
-                    obj.ROB_event_Unsubscriptions('PalletLoaded')
-                    obj.ROB_event_Unsubscriptions('PalletUnloaded')
-                else:
-                    obj.ROB_event_Unsubscriptions('PenChangeStarted')
-                    obj.ROB_event_Unsubscriptions('DrawStartExecution')
-                    obj.ROB_event_Unsubscriptions('PenChangeEnded')
-                    obj.ROB_event_Unsubscriptions('DrawEndExecution')
-    else:
-        for obj in WS_obj_list:
-            if obj.get_ID() == 1:continue
-            print(f'[X] Subscription for Workstation_{obj.get_ID()}' )
-            # if obj.get_ID() == 7:
-            #     print("")
-            for zone_name in range(1, 6):
-                if zone_name == 5:
-                    continue
-                obj.CNV_event_subscriptions(zone_name)
-
-            if obj.get_ID() == 1:
-                obj.ROB_event_subscriptions('PaperLoaded')
-                obj.ROB_event_subscriptions('PaperUnloaded')
-            elif obj.get_ID() == 7:
-                
-                obj.ROB_event_subscriptions('PalletLoaded')
-                obj.ROB_event_subscriptions('PalletUnloaded')
-            else:
-                obj.ROB_event_subscriptions('PenChangeStarted')
-                obj.ROB_event_subscriptions('DrawStartExecution')
-                obj.ROB_event_subscriptions('PenChangeEnded')
-                obj.ROB_event_subscriptions('DrawEndExecution')
+        if obj.get_ID() == 1:
+            obj.ROB_event_subscriptions('PaperLoaded',Unsub=False)
+            obj.ROB_event_subscriptions('PaperUnloaded',Unsub=False)
+        elif obj.get_ID() == 7:
+            
+            obj.ROB_event_subscriptions('PalletLoaded',Unsub=False)
+            obj.ROB_event_subscriptions('PalletUnloaded',Unsub=False)
+        else:
+            obj.ROB_event_subscriptions('PenChangeStarted',Unsub=False)
+            obj.ROB_event_subscriptions('DrawStartExecution',Unsub=False)
+            obj.ROB_event_subscriptions('PenChangeEnded',Unsub=False)
+            obj.ROB_event_subscriptions('DrawEndExecution',Unsub=False)
 
 def checkSubscription(url,body):
     try:
@@ -238,6 +214,7 @@ def checkSubscription(url,body):
         if (r.json().get("children")): 
             eventId= [x for x in r.json().get("children").values()][0].get("id")
             r=requests.get(f"{url}/{eventId}")
+            
             #check application subscription
             if (r.json().get("destUrl") == body.get("destUrl")):
                 return (True,eventId)
@@ -247,6 +224,7 @@ def checkSubscription(url,body):
         print("[X] OOps: Something Else", err) 
 
 ################# used if event sub-unSub done from eventsubscriptions table#################
+#####Curently not using###############
 
 def sendHTTPReqtoS1000(url, Unsubs=False):
     try: 
