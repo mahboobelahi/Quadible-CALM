@@ -23,6 +23,7 @@ MQTT_REFRESH_TIME = 1.0  # refresh time in seconds
 ORDERS =list()
 pallet_objects =dict() 
 WS_obj_list = list()
+reqTimeOut = 10
 orchestrator_IP = '0.0.0.0'#'192.168.100.100' ''
 orchestrator_Port = 1064
 WorkStations = [1,2,3,4,5,6,7,8,9,10,11,12] #FASTory Line's workcells
