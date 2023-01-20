@@ -91,7 +91,7 @@ class FASToryLineEvents(db.Model):
        return [ self.SenderID,self.Events.get('id'),
                 self.Events.get('payload').get('Recipe'),
                 self.Events.get('payload').get('PenColor'),
-                self.Events.get('payload').get('palletId'),
+                self.Events.get('payload').get('PalletID'),
                 dump_datetime(self.timestamp)]
 
 

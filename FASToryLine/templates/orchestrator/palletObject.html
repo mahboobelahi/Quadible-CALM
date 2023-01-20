@@ -37,6 +37,7 @@
 
   <tbody>
     {% for lot in Pallet_obj %}
+    
     <tr>
       <td>{{lot.LotNumber}}</td>
       <td>{{loop.index}}</td>
@@ -66,7 +67,7 @@
       <td>
         {{lot.timestamp.0}} {{lot.timestamp.1}}
         <form action="/palletObj" method="POST">
-          <input type="hidden" name="palletRFIDtag" value="{{lot.id}}" />
+          <input type="hidden" name="palletRFIDtag" value="{{lot.PalletID}}" />
           <button type="submit" class="btn btn-danger">
             <i class="bi-file-excel-fill" style="font-size: 20px"></i>
           </button>

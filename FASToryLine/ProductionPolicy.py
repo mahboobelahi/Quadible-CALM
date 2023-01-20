@@ -350,6 +350,8 @@ class Workstation:
         r = requests.post(CNV_ser_Url, json={"destUrl": ""})
         #
         # # Shows response in console
+        if self.ID==11:
+            print(transfer)
         print(f'Service TransZone{transfer} on WS_{self.ID}, {r.status_code}, {r.reason}')
 
         if r.status_code==403:
@@ -436,19 +438,38 @@ class Workstation:
             # Submit POST request
             headers = {"Content-Type": "application/json"}
             r = requests.post(ROB_ser_URL, json={"destUrl": ""}, headers=headers)#f"{self.url_self}"
+        try:
+            if current_pallet.get_frame_status() == True and \
+                    current_pallet.get_screen_status() == True and \
+                    current_pallet.get_keypad_status() == True:
+                current_pallet.update_Order_status(True)
+                #Update Lot and palletObj status in db
+                print(f"[X] Updating order status.....")
+                current_pallet.get_PID()
+                
+                result=db.session.query(DataBase.PalletObjects).filter_by(PalletID=current_pallet.get_PID()).first_or_404()
+                if result!=404:
+                    result.Status = True
+                    db.session.commit()
+                    print(f"[X] Order status updated")
 
-        if current_pallet.get_frame_status() == True and \
-                current_pallet.get_screen_status() == True and \
-                current_pallet.get_keypad_status() == True:
-            current_pallet.update_Order_status(True)
-            #Update Lot and palletObj status in db
-            result=db.session.query(DataBase.PalletObjects).get_or_404(current_pallet.get_PID())
-            result.Status = True
-            db.session.commit()
-        if len(CONFIG.ORDERS) == 0:
-            result=db.session.query(DataBase.Orders).filter_by(IsFetched=True).first()
-            result.OrderStatus = True
-            db.session.commit()
+                # checking for processed orders from a lot 
+                orderQuantity = DataBase.Orders.query.get_or_404(current_pallet.get_Order_Alias()).Quantity
+                processedPallets = DataBase.PalletObjects.query.filter(
+                                    DataBase.PalletObjects.LotNumber==current_pallet.get_Order_Alias(),
+                                    DataBase.PalletObjects.Status==True ).count() 
+                print(f"[X] Updating order status.....")
+                if orderQuantity == processedPallets:
+                    result=db.session.query(DataBase.Orders).get_or_404(current_pallet.get_Order_Alias())#filter_by(IsFetched=True).first()
+                    if result !=404:
+                        result.OrderStatus = True
+                        db.session.commit()
+                        print(f"[X] Lot status updated")
+                        # print(f"[X] {list(CONFIG.pallet_objects.keys())}")
+                        # print(f"[X] {list(CONFIG.pallet_objects.pop(current_pallet.get_PID()))}")
+                        
+        except exc.SQLAlchemyError as e:
+            print(f'[XE] {e}')
         return pos_update
 
     # change pencolor
@@ -676,11 +697,15 @@ class Workstation:
                     if event_notif['payload'].get('PalletID') in CONFIG.pallet_objects.keys():
                         print(f"[X] if PalletID !=0")
                         current_pallet = CONFIG.pallet_objects[palletID]
+                    else:
+                        print(f'[X] Found pallet objects with ID: {palletID}::{CONFIG.pallet_objects.get(palletID)}')
+                        return
             else:
                 current_pallet = self.get_currentPallet()
                 print(f"[X] if PalletID == 0>>>{current_pallet}")
             # movement between Zones
             print(current_pallet.info())
+            
             if  current_pallet.get_current_zone() == 1 or \
                 current_pallet.get_current_zone() == 4 or \
                 current_pallet.get_current_zone() == 5:
@@ -695,7 +720,7 @@ class Workstation:
                     print(f'[X] {current_pallet.get_PID()},#####################_F3_###########################')
                 print(f'Drawing condition: {pos_status and Drawing_update}, at {self.ID}, with palletID {current_pallet.get_PID()}, #####################main_transfer_wd_drawing###########################')
                 pos_status = self.main_transfer_wd_drawing(current_pallet)
-
+ 
         if pos_status and Drawing_update:
 
             current_pallet.set_current_zone(current_pallet.get_next_zone())
@@ -716,22 +741,28 @@ class Workstation:
         app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
         db = SQLAlchemy(app)
         
-        @app.route('/')
-        def welcome():
+        @app.route('/<name>')
+        @app.route('/',defaults={'name': None})
+        def welcome(name):
             # result=DataBase.WorkstationInfo.query.get(self.ID)
             # print(result.LineEvents)
             # context = {"ID": self.ID, "url": self.url_self,"lineEvents":[res.getEventAsCSV for res in result.LineEvents]}
             # print(context)
             #For displaying workcell events on UI with pagination
+            queryParam = ''
+            if name:
+                queryParam = f"{name+str(self.ID)}"
 
-            page = request.args.get('page',1,type=int)
-            lineEvents= DataBase.FASToryLineEvents.query.filter_by(Fkey=self.ID).order_by(
+             
+            page = request.args.get('page',1,type=int)#Fkey=self.ID
+            lineEvents= DataBase.FASToryLineEvents.query.filter_by(SenderID=queryParam).order_by(
                DataBase.FASToryLineEvents.id.desc()).paginate(per_page=10, page=page )
             print(f"""[X] {lineEvents.items}, {lineEvents.total}""")
             return render_template(f'workstations/Welcome.html',
                                     title=f'Station_{self.ID}',
                                     ID=self.ID,url= self.url_self,
-                                    lineEvents=lineEvents)
+                                    lineEvents=lineEvents,
+                                    name=name)
 
         @app.route('/info')  # ,methods=['GET']
         def info():

@@ -139,10 +139,12 @@ def updateCapability(policyID ):
 def getAndSetIsFetchOrders():
     try:
         result= Orders.query.filter_by(IsFetched=False).first()
-        result.IsFetched =True
-        db.session.commit() 
-        return [CONFIG.ORDERS.append(result.getOrder) for i in range(result.Quantity)]
-        
+        if result:
+            result.IsFetched =True
+            db.session.commit() 
+            return [CONFIG.ORDERS.append(result.getOrder) for i in range(result.Quantity)]
+        else:
+            print("[X] No more orders in system....")
     except exc.SQLAlchemyError as e:
         print(f'[XE] {e}')
 
@@ -153,12 +155,12 @@ def instencateWorkstations():
     CONFIG.wrkCellLoc_Port = 2000
     for i in range(1,13):
         #change capabilities for policies
-        # if i in [1,2,3,4,5,6,7,8,10,11,12]:
+        # if i in [1,2,3,4,5,6,7,8,9,10,11,12]:
         #     continue
         # if i !=7 and  i!=10:
         #     continue
-        # if  i==3:
-        #      continue
+        if  i in [1,2,3,4,5,6,7,8]:
+             continue
         temp_obj=WkC.Workstation(i,CONFIG.wrkCellLoc_Port+i,
                                 CONFIG.robot_make[i-1],CONFIG.robot_type[i-1],
                                 CONFIG.ComponentStatus[i-1])
@@ -203,6 +205,7 @@ def subscribeToFASToryEvents(WS_obj_list):
             obj.ROB_event_subscriptions('DrawStartExecution',Unsub=False)
             obj.ROB_event_subscriptions('PenChangeEnded',Unsub=False)
             obj.ROB_event_subscriptions('DrawEndExecution',Unsub=False)
+    print(f"[X] Subscription part execuation has completed...")
 
 def checkSubscription(url,body):
     try:
@@ -214,7 +217,7 @@ def checkSubscription(url,body):
         if (r.json().get("children")): 
             eventId= [x for x in r.json().get("children").values()][0].get("id")
             r=requests.get(f"{url}/{eventId}")
-            
+
             #check application subscription
             if (r.json().get("destUrl") == body.get("destUrl")):
                 return (True,eventId)
